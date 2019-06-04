@@ -9,3 +9,11 @@ type User struct {
 	Password  string
 	CreatedAt time.Time
 }
+
+// NewUser contains information needed to create a new User.
+type NewUser struct {
+	Name            string `json:"name"`
+	Email           string `json:"email"`
+	Password        string `json:"password"`
+	PasswordConfirm string `json:"password_confirm"`
+}

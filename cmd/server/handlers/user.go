@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/bardromi/wishlist/internal/platform/db"
 	"github.com/bardromi/wishlist/internal/user"
 	"github.com/gin-gonic/gin"
@@ -26,4 +27,16 @@ func (u *User) GetUser(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"message": usr.Email,
 	})
+}
+
+func (u *User) CreateUser(c *gin.Context) {
+	var err error
+	var nu user.NewUser
+	err = c.BindJSON(&nu)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	usr, err := user.CreateUser(u.MasterDB, &nu)
+	fmt.Println(usr)
 }
