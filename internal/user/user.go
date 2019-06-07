@@ -1,13 +1,23 @@
 package user
 
 import (
+	"database/sql"
+	"errors"
 	"github.com/bardromi/wishlist/internal/platform/db"
+)
+
+var (
+	// ErrNotFound abstracts the postgres not found error.
+	ErrNotFound = errors.New("entity not found")
 )
 
 func FindByEmail(dbConn *db.DB, email string) (*User, error) {
 	var user = User{}
 	row := dbConn.FindByEmail(email)
 	err := row.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.CreatedAt)
+	if err == sql.ErrNoRows {
+		return nil, ErrNotFound
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -21,9 +31,13 @@ func CreateUser(dbConn *db.DB, nu *NewUser) (*User, error) {
 	if err != nil {
 		return nil, err
 	}
-	err = row.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.CreatedAt)
-	if err != nil {
+
+	if err = row.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.CreatedAt); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrNotFound
+		}
 		return nil, err
 	}
+
 	return &user, err
 }
