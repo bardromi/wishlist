@@ -30,9 +30,5 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
-	err = s.ListenAndServe()
-
-	if err != nil {
-		log.Fatalln("Server failed", err)
-	}
+	log.Fatal(s.ListenAndServe())
 }

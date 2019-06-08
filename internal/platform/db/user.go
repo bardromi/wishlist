@@ -9,7 +9,7 @@ func (db *DB) FindByEmail(email string) *sql.Row {
 	return db.database.QueryRow("SELECT id, name, email, password, created_at FROM users WHERE email = $1", email)
 }
 
-func (db *DB) CreateUser(name string, email string, password string, confirmPassword string) (*sql.Row, error) {
+func (db *DB) CreateUser(name string, email string, hashedPassword []byte) (*sql.Row, error) {
 	// Postgres does not automatically return the last insert id, because it would be wrong to assume
 	// you're always using a sequence.You need to use the RETURNING keyword in your insert to get this
 	// information from postgres.
@@ -21,6 +21,6 @@ func (db *DB) CreateUser(name string, email string, password string, confirmPass
 	defer stmt.Close()
 
 	// use QueryRow to return a row and scan the returned id into the User struct
-	queryRow := stmt.QueryRow(name, email, password, time.Now())
+	queryRow := stmt.QueryRow(name, email, hashedPassword, time.Now())
 	return queryRow, err
 }

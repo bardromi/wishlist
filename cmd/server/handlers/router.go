@@ -14,7 +14,7 @@ func API(masterDB *db.DB) http.Handler {
 	}
 
 	router.GET("/", u.GetUser)
-	router.POST("/", u.CreateUser)
+	router.POST("/", u.SignUp)
 
 	return router
 }

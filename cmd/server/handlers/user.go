@@ -6,6 +6,7 @@ import (
 	"github.com/bardromi/wishlist/internal/user"
 	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
 )
 
 type User struct {
@@ -29,14 +30,19 @@ func (u *User) GetUser(c *gin.Context) {
 	})
 }
 
-func (u *User) CreateUser(c *gin.Context) {
+func (u *User) SignUp(c *gin.Context) {
 	var err error
 	var nu user.NewUser
 	err = c.BindJSON(&nu)
 	if err != nil {
+		// If there is something wrong with the request body, return a 400 status
 		fmt.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
 	}
 
-	usr, err := user.CreateUser(u.MasterDB, &nu)
-	fmt.Println(usr)
+	usr, err := user.SignUp(u.MasterDB, &nu)
+	c.JSON(200, gin.H{
+		"user": usr,
+	})
 }
