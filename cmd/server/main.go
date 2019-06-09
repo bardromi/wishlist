@@ -1,30 +1,35 @@
 package main
 
 import (
-	"fmt"
 	"github.com/bardromi/wishlist/cmd/server/handlers"
 	"github.com/bardromi/wishlist/internal/platform/config"
-	"github.com/bardromi/wishlist/internal/platform/db"
+	"github.com/bardromi/wishlist/internal/platform/database"
 	"log"
 	"net/http"
 	"time"
 )
 
 func main() {
-	conf := config.LoadConfig()
+	cfg := config.LoadConfig()
 
-	connection := fmt.Sprintf(`%s://%s:%s@%s/%s?sslmode=%s`, conf.Kind, conf.Username, conf.Password, conf.DatabaseConfiguration.Address, conf.DBName, conf.SslMode)
+	// =========================================================================
+	// Start Database
 
-	log.Println("main : Started : Initialize Postgres")
-	masterDB, err := db.New(conf.Kind, connection)
+	db, err := database.Open(database.Config{
+		User:       cfg.DatabaseConfiguration.User,
+		Password:   cfg.DatabaseConfiguration.Password,
+		Host:       cfg.DatabaseConfiguration.Host,
+		Name:       cfg.DatabaseConfiguration.Name,
+		DisableTLS: cfg.DatabaseConfiguration.DisableTLS,
+	})
 	if err != nil {
-		log.Fatalf("main : Register DB : %v", err)
+		log.Panic("Error initialize db", err)
 	}
-	defer masterDB.Close()
+	defer db.Close()
 
 	s := &http.Server{
 		Addr:           ":8080",
-		Handler:        handlers.API(masterDB),
+		Handler:        handlers.API(db),
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 		MaxHeaderBytes: 1 << 20,

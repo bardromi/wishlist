@@ -1,21 +1,24 @@
 package handlers
 
 import (
-	"fmt"
-	"github.com/bardromi/wishlist/internal/platform/db"
 	"github.com/bardromi/wishlist/internal/user"
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"log"
 	"net/http"
 )
 
 type User struct {
-	MasterDB *db.DB
+	db *sqlx.DB
+}
+
+type Login struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 func (u *User) GetUser(c *gin.Context) {
-	params := c.Request.URL.Query()
-	usr, err := user.FindByEmail(u.MasterDB, params.Get("email"))
+	usr, err := user.GetUserById(u.db, c.Param("id"))
 
 	if err != nil {
 		log.Println(err.Error())
@@ -26,22 +29,59 @@ func (u *User) GetUser(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{
-		"message": usr.Email,
+		"user": usr,
 	})
 }
 
-func (u *User) SignUp(c *gin.Context) {
-	var err error
-	var nu user.NewUser
-	err = c.BindJSON(&nu)
+func (u *User) List(c *gin.Context) {
+	usrs, err := user.List(u.db)
 	if err != nil {
-		// If there is something wrong with the request body, return a 400 status
-		fmt.Println(err)
+		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
-	usr, err := user.SignUp(u.MasterDB, &nu)
+	c.JSON(200, gin.H{
+		"users": usrs,
+	})
+
+}
+
+func (u *User) SignUp(c *gin.Context) {
+	var nu user.NewUser
+
+	err := c.BindJSON(&nu)
+	if err != nil {
+		// If there is something wrong with the request body, return a 400 status
+		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	usr, err := user.SignUp(u.db, &nu)
+	c.JSON(200, gin.H{
+		"user": usr,
+	})
+}
+
+func (u *User) SignIn(c *gin.Context) {
+	var login Login
+
+	err := c.BindJSON(&login)
+	if err != nil {
+		// If there is something wrong with the request body, return a 400 status
+		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
+	usr, err := user.SignIn(u.db, login.Email, login.Password)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusBadRequest)
+		return
+	}
+
 	c.JSON(200, gin.H{
 		"user": usr,
 	})

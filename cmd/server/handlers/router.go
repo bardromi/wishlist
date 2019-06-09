@@ -1,20 +1,22 @@
 package handlers
 
 import (
-	"github.com/bardromi/wishlist/internal/platform/db"
 	"github.com/gin-gonic/gin"
+	"github.com/jmoiron/sqlx"
 	"net/http"
 )
 
-func API(masterDB *db.DB) http.Handler {
+func API(db *sqlx.DB) http.Handler {
 	router := gin.Default()
 
 	u := User{
-		MasterDB: masterDB,
+		db: db,
 	}
 
-	router.GET("/", u.GetUser)
-	router.POST("/", u.SignUp)
+	router.GET("/users/:id", u.GetUser)
+	router.GET("/users", u.List)
+	router.POST("/signup", u.SignUp)
+	router.POST("/signin", u.SignIn)
 
 	return router
 }

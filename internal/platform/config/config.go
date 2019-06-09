@@ -17,12 +17,11 @@ type WebConfiguration struct {
 }
 
 type DatabaseConfiguration struct {
-	Kind     string `json:"kind"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Address  string `json:"address"`
-	DBName   string `json:"dbName"`
-	SslMode  string `json:"sslMode"`
+	User       string `json:"username"`
+	Password   string `json:"password"`
+	Host       string `json:"address"`
+	Name       string `json:"dbName"`
+	DisableTLS bool   `json:"sslMode"`
 }
 
 func LoadConfig() *Configuration {
