@@ -2,6 +2,7 @@ package user
 
 import (
 	"database/sql"
+	"github.com/bardromi/wishlist/internal/platform/auth"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -86,7 +87,7 @@ func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
 	return &u, nil
 }
 
-func SignIn(db *sqlx.DB, email, password string) (*User, error) {
+func SignIn(db *sqlx.DB, email, password string) (auth.Claims, error) {
 	const q = `SELECT * FROM users WHERE email = $1`
 	var u User
 
@@ -94,17 +95,21 @@ func SignIn(db *sqlx.DB, email, password string) (*User, error) {
 		// Normally we would return ErrNotFound in this scenario but we do not want
 		// to leak to an unauthenticated user which emails are in the system.
 		if err == sql.ErrNoRows {
-			return nil, ErrAuthenticationFailure
+			return auth.Claims{}, ErrAuthenticationFailure
 		}
 
-		return nil, err
+		return auth.Claims{}, err
 	}
 
 	// Compare the provided password with the saved hash. Use the bcrypt
 	// comparison function so it is cryptographically secure.
 	if err := bcrypt.CompareHashAndPassword(u.PasswordHash, []byte(password)); err != nil {
-		return nil, ErrAuthenticationFailure
+		return auth.Claims{}, ErrAuthenticationFailure
 	}
 
-	return &u, nil
+	// If we are this far the request is valid. Create some claims for the user
+	// and generate their token.
+	claims := auth.NewClaims(u.Email, time.Hour)
+
+	return claims, nil
 }

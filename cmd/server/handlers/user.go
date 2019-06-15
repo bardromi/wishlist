@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+	"github.com/bardromi/wishlist/internal/platform/auth"
 	"github.com/bardromi/wishlist/internal/user"
 	"github.com/gin-gonic/gin"
 	"github.com/jmoiron/sqlx"
@@ -75,14 +77,28 @@ func (u *User) SignIn(c *gin.Context) {
 		return
 	}
 
-	usr, err := user.SignIn(u.db, login.Email, login.Password)
+	claims, err := user.SignIn(u.db, login.Email, login.Password)
 	if err != nil {
 		log.Println(err)
 		c.AbortWithStatus(http.StatusBadRequest)
 		return
 	}
 
+	tkn, err := auth.GenerateToken(claims)
+	if err != nil {
+		log.Println(err)
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
+	cookie, err := c.Cookie("WishList")
+	//if Cookie doesnt exist or expired for current session create a new one
+	if err != nil {
+		cookie = "NotSet"
+		c.SetCookie("WishList", tkn, 3600, "/", "localhost", false, true)
+	}
+	fmt.Printf("Cookie value: %s \n", cookie)
+
 	c.JSON(200, gin.H{
-		"user": usr,
+		"Message": "Success",
 	})
 }
