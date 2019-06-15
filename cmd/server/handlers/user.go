@@ -94,7 +94,6 @@ func (u *User) SignIn(c *gin.Context) {
 	cookie, err := c.Cookie("WishList")
 	//if Cookie doesnt exist or expired for current session create a new one
 	if err != nil {
-		fmt.Println(time.Unix(claims.ExpiresAt, 0))
 		cookie = "NotSet"
 		expires := int(claims.ExpiresAt - time.Now().Unix())
 		c.SetCookie("WishList", tkn, expires, "/", "localhost", false, true)
