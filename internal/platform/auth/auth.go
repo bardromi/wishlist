@@ -2,7 +2,6 @@ package auth
 
 import (
 	"github.com/dgrijalva/jwt-go"
-	"github.com/pkg/errors"
 	"time"
 )
 
@@ -43,7 +42,7 @@ func (c Claims) Valid() error {
 	//	}
 	//}
 	if err := c.StandardClaims.Valid(); err != nil {
-		return errors.Wrap(err, "validating standard claims")
+		return err
 	}
 	return nil
 }
@@ -54,7 +53,7 @@ func GenerateToken(claims Claims) (string, error) {
 
 	str, err := tkn.SignedString(jwtKey)
 	if err != nil {
-		return "", errors.Wrap(err, "signing token")
+		return "", err
 	}
 
 	return str, nil

@@ -35,5 +35,6 @@ func main() {
 		MaxHeaderBytes: 1 << 20,
 	}
 
+	log.Println("Server started, Listening on port", s.Addr)
 	log.Fatal(s.ListenAndServe())
 }
