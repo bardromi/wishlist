@@ -3,11 +3,13 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/bardromi/wishlist/internal/platform/auth"
 	"github.com/bardromi/wishlist/internal/user"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 	"log"
 	"net/http"
+	"time"
 )
 
 type User struct {
@@ -59,43 +61,40 @@ func (u *User) SignUp(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, http.StatusOK, usr)
 }
 
-//func (u *User) SignIn(w http.ResponseWriter, r *http.Request,) {
-//	var login Login
-//
-//	err := c.BindJSON(&login)
-//	if err != nil {
-//		// If there is something wrong with the request body, return a 400 status
-//		log.Println(err)
-//		c.AbortWithStatus(http.StatusBadRequest)
-//		return
-//	}
-//
-//	claims, err := user.SignIn(u.db, login.Email, login.Password)
-//	if err != nil {
-//		log.Println(err)
-//		c.AbortWithStatus(http.StatusBadRequest)
-//		return
-//	}
-//
-//	tkn, err := auth.GenerateToken(claims)
-//	if err != nil {
-//		log.Println(err)
-//		c.AbortWithStatus(http.StatusInternalServerError)
-//		return
-//	}
-//	cookie, err := c.Cookie("WishList")
-//	//if Cookie doesnt exist or expired for current session create a new one
-//	if err != nil {
-//		cookie = "NotSet"
-//		expires := int(claims.ExpiresAt - time.Now().Unix())
-//		c.SetCookie("WishList", tkn, expires, "/", "localhost", false, true)
-//	}
-//	fmt.Printf("Cookie value: %s \n", cookie)
-//
-//	c.JSON(200, gin.H{
-//		"Message": "Success",
-//	})
-//}
+func (u *User) SignIn(w http.ResponseWriter, r *http.Request) {
+	var login Login
+
+	err := json.NewDecoder(r.Body).Decode(&login)
+	if err != nil {
+		// If the structure of the body is wrong, return an HTTP error
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	claims, err := user.SignIn(u.db, login.Email, login.Password)
+	if err != nil {
+		log.Println(err)
+		respondWithError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	tkn, err := auth.GenerateToken(claims)
+	if err != nil {
+		log.Println(err)
+		respondWithError(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	cookie := http.Cookie{
+		Name:     "WishList",
+		Value:    tkn,
+		HttpOnly: true,
+		Expires:  time.Unix(claims.ExpiresAt, 0),
+	}
+	http.SetCookie(w, &cookie)
+
+	respondWithJSON(w, http.StatusOK, map[string]string{"email": claims.Email})
+}
 
 // respondWithJSON write json response format
 func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
