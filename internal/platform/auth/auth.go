@@ -18,14 +18,14 @@ type Claims struct {
 // NewClaims constructs a Claims value for the identified user. The Claims
 // expire within a specified duration of the provided time. Additional fields
 // of the Claims can be set after calling NewClaims is desired.
-func NewClaims(email string, expires time.Duration) Claims {
+func NewClaims(email string, now time.Time, expires time.Duration) Claims {
 	c := Claims{
 		Email: email,
 		StandardClaims: jwt.StandardClaims{
 			Subject:  "wishList",
-			IssuedAt: time.Now().Unix(),
+			IssuedAt: now.Unix(),
 			// In JWT, the expiry time is expressed as unix milliseconds
-			ExpiresAt: time.Now().Add(expires).Unix(),
+			ExpiresAt: now.Add(expires).Unix(),
 		},
 	}
 

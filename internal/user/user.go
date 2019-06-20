@@ -87,7 +87,7 @@ func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
 	return &u, nil
 }
 
-func SignIn(db *sqlx.DB, email, password string) (auth.Claims, error) {
+func SignIn(db *sqlx.DB, now time.Time, email, password string) (auth.Claims, error) {
 	const q = `SELECT * FROM users WHERE email = $1`
 	var u User
 
@@ -109,7 +109,7 @@ func SignIn(db *sqlx.DB, email, password string) (auth.Claims, error) {
 
 	// If we are this far the request is valid. Create some claims for the user
 	// and generate their token.
-	claims := auth.NewClaims(u.Email, time.Hour)
+	claims := auth.NewClaims(u.Email, now, time.Hour)
 
 	return claims, nil
 }

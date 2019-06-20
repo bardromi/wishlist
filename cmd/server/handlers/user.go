@@ -71,7 +71,7 @@ func (u *User) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	claims, err := user.SignIn(u.db, login.Email, login.Password)
+	claims, err := user.SignIn(u.db, time.Now(), login.Email, login.Password)
 	if err != nil {
 		log.Println(err)
 		respondWithError(w, http.StatusBadRequest, err.Error())
