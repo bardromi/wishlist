@@ -25,7 +25,11 @@ func main() {
 	if err != nil {
 		log.Panic("Error initialize db", err)
 	}
-	defer db.Close()
+
+	defer func() {
+		log.Printf("main : Database Stopping : %s", cfg.DatabaseConfiguration.Host)
+		db.Close()
+	}()
 
 	s := &http.Server{
 		Addr:           ":8080",

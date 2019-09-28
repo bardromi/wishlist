@@ -8,3 +8,5 @@ create table users
     password   text      not null,
     created_at timestamp not null
 );
+
+-- psql wishlist < C:\Users\Bar\go\src\github.com\bardromi\wishlist\internal\setup.sql
