@@ -28,7 +28,7 @@ func main() {
 
 	defer func() {
 		log.Printf("main : Database Stopping : %s", cfg.DatabaseConfiguration.Host)
-		db.Close()
+		log.Fatal(db.Close())
 	}()
 
 	s := &http.Server{
