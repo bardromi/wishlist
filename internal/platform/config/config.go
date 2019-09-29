@@ -25,7 +25,11 @@ type DatabaseConfiguration struct {
 }
 
 func LoadConfig() *Configuration {
-	jsonFile, err := os.Open("C:/Users/Bar/go/src/github.com/bardromi/wishlist/cmd/server/config.json")
+	args := os.Args
+	if len(args) < 2 {
+		log.Panicln("Not enough arguments, probably missing configuration file path.")
+	}
+	jsonFile, err := os.Open(args[1])
 	if err != nil {
 		log.Fatalln("Cannot open config file", err)
 	}
