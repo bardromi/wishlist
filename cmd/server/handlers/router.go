@@ -15,10 +15,10 @@ func API(db *sqlx.DB) http.Handler {
 		db: db,
 	}
 
-	//router.Use(mid.Logger)
+	router.Use(mid.Logging)
 
 	router.HandleFunc("/users/{id}", u.GetUser).Methods("GET")
-	router.HandleFunc("/users", mid.Chain(u.List, mid.Logger)).Methods("GET")
+	router.HandleFunc("/users", mid.Chain(u.List, mid.Stam)).Methods("GET")
 	router.HandleFunc("/signup", u.SignUp).Methods("POST")
 	router.HandleFunc("/signin", u.SignIn).Methods("POST")
 
