@@ -7,7 +7,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"time"
 
-	//"database/sql"
 	"errors"
 	"github.com/jmoiron/sqlx"
 )
@@ -47,7 +46,7 @@ func GetUserById(db *sqlx.DB, id string) (*User, error) {
 }
 
 func List(db *sqlx.DB) ([]User, error) {
-	users := []User{}
+	var users []User
 	const q = `SELECT * FROM users`
 
 	if err := db.Select(&users, q); err != nil {

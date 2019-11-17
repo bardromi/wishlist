@@ -39,7 +39,6 @@ func (u *User) List(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Add("Content-Type", "application/json")
 	web.Respond(w, usrs, http.StatusOK)
 }
 
@@ -70,7 +69,7 @@ func (u *User) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	claims, err := user.SignIn(u.db, time.Now(), login.Email, login.Password)
 	if err != nil {
-		web.RespondError(w, err.Error(), http.StatusBadRequest)
+		web.RespondError(w, err.Error(), http.StatusUnauthorized)
 		return
 	}
 
@@ -90,20 +89,3 @@ func (u *User) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	web.Respond(w, map[string]string{"email": claims.Email}, http.StatusOK)
 }
-
-//// respondWithJSON write json response format
-//func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
-//	response, _ := json.Marshal(payload)
-//	w.Header().Set("Content-Type", "application/json")
-//	w.WriteHeader(code)
-//
-//	// Send the result back to the client.
-//	if _, err := w.Write(response); err != nil {
-//		http.Error(w, err.Error(), http.StatusInternalServerError)
-//	}
-//}
-//
-//// respondWithError return error message
-//func respondWithError(w http.ResponseWriter, code int, msg string) {
-//	respondWithJSON(w, code, map[string]string{"message": msg})
-//}
