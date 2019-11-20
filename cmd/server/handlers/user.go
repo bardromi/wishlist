@@ -89,3 +89,15 @@ func (u *User) SignIn(w http.ResponseWriter, r *http.Request) {
 
 	web.Respond(w, map[string]string{"email": claims.Email}, http.StatusOK)
 }
+
+func (u *User) SignOut(w http.ResponseWriter, r *http.Request) {
+	expiredCookie := http.Cookie{
+		Name:     "WishList",
+		Value:    "",
+		HttpOnly: true,
+		Expires:  time.Unix(0, 0),
+	}
+
+	http.SetCookie(w, &expiredCookie)
+	web.Respond(w, "bye bye", http.StatusOK)
+}

@@ -35,7 +35,7 @@ func NewClaims(email string, now time.Time, expires time.Duration) Claims {
 
 func ParseClaims(tknStr string) (Claims, error) {
 	// Initialize a new instance of `Claims`
-	claims := Claims{}
+	var claims Claims
 
 	// Parse the JWT string and store the result in `claims`.
 	// Note that we are passing the key in this method as well. This method will return an error

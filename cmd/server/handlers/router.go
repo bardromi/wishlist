@@ -21,6 +21,7 @@ func API(db *sqlx.DB) http.Handler {
 	router.Handle("/users", mid.Chain(http.HandlerFunc(u.List), mid.Authenticated)).Methods("GET")
 	router.HandleFunc("/signup", u.SignUp).Methods("POST")
 	router.HandleFunc("/signin", u.SignIn).Methods("POST")
+	router.Handle("/signout", mid.Chain(http.HandlerFunc(u.SignOut), mid.Authenticated)).Methods("POST")
 
 	return router
 }
