@@ -23,7 +23,7 @@ func buildQuery(resolver Resolver) *graphql.Object {
 				/* Get (read) users list
 				   http://localhost:8080/product?query={list{id,name,info,price}}
 				*/
-				"list": &graphql.Field{
+				"users": &graphql.Field{
 					Type:        graphql.NewList(userType),
 					Description: "Get users list",
 					Resolve:     resolver.UserList,
