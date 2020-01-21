@@ -35,7 +35,7 @@ func (g *GraphQL) GraphQL(w http.ResponseWriter, r *http.Request) {
 	result, err := gql.ExecuteQuery(rBody.Query, *g.GqlSchema)
 
 	if err != nil {
-		web.RespondError(w, "graphql could not process the request", http.StatusInternalServerError)
+		web.RespondError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
