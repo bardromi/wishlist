@@ -12,7 +12,8 @@ func NewRoot(db *sqlx.DB) *graphql.Schema {
 
 	var schema, _ = graphql.NewSchema(
 		graphql.SchemaConfig{
-			Query: buildQuery(resolver),
+			Query:    buildQuery(resolver),
+			Mutation: buildMutation(resolver),
 		},
 	)
 
