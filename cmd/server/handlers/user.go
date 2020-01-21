@@ -53,6 +53,10 @@ func (u *User) SignUp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	usr, err := user.SignUp(u.db, &nu)
+	if err != nil {
+		web.RespondError(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	web.Respond(w, usr, http.StatusOK)
 }
