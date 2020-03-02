@@ -2,12 +2,14 @@ package user
 
 import (
 	"database/sql"
+	"time"
+
 	"github.com/bardromi/wishlist/internal/platform/auth"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
-	"time"
 
 	"errors"
+
 	"github.com/jmoiron/sqlx"
 )
 
@@ -32,7 +34,10 @@ func GetUserById(db *sqlx.DB, id string) (*User, error) {
 	}
 
 	var u User
-	const q = `SELECT * FROM users WHERE id = $1`
+	const q = `
+	SELECT *
+	FROM users
+	WHERE id = $1`
 
 	if err := db.Get(&u, q, id); err != nil {
 		if err == sql.ErrNoRows {
@@ -76,7 +81,10 @@ func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
 		CreatedAt:    time.Now(),
 	}
 
-	const q = "insert into users (ID, name, email, password, created_at) values ($1, $2, $3, $4, $5)"
+	const q = `
+	INSERT INTO users 
+	(ID, name, email, password, created_at)
+	VALUES ($1, $2, $3, $4, $5)`
 
 	_, err = db.Exec(q, u.ID, u.Name, u.Email, u.PasswordHash, u.CreatedAt)
 	if err != nil {
@@ -87,7 +95,11 @@ func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
 }
 
 func SignIn(db *sqlx.DB, now time.Time, email, password string) (auth.Claims, error) {
-	const q = `SELECT * FROM users WHERE email = $1`
+	const q = `
+	SELECT * 
+	FROM users
+	WHERE email = $1`
+
 	var u User
 
 	if err := db.Get(&u, q, email); err != nil {
