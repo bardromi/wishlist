@@ -2,10 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/bardromi/wishlist/internal/gql"
 	"github.com/bardromi/wishlist/internal/platform/web"
 	"github.com/graphql-go/graphql"
-	"net/http"
 )
 
 type GraphQL struct {
@@ -19,7 +20,7 @@ type reqBody struct {
 func (g *GraphQL) GraphQL(w http.ResponseWriter, r *http.Request) {
 	// Check to ensure query was provided in the request body
 	if r.Body == nil {
-		http.Error(w, "Must provide graphql query in request body", 400)
+		web.RespondError(w, "Must provide graphql query in request body", http.StatusBadRequest)
 		return
 	}
 

@@ -76,7 +76,7 @@ func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
 		CreatedAt:    time.Now(),
 	}
 
-	const q = "insert into users (ID, name, email, password, created_at) values ($1, $2, $3, $4,$5)"
+	const q = "insert into users (ID, name, email, password, created_at) values ($1, $2, $3, $4, $5)"
 
 	_, err = db.Exec(q, u.ID, u.Name, u.Email, u.PasswordHash, u.CreatedAt)
 	if err != nil {

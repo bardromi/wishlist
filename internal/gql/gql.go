@@ -3,6 +3,7 @@ package gql
 import (
 	"errors"
 	"fmt"
+
 	"github.com/graphql-go/graphql"
 	"github.com/jmoiron/sqlx"
 )
@@ -20,6 +21,7 @@ func NewRoot(db *sqlx.DB) *graphql.Schema {
 	return &schema
 }
 
+// ExecuteQuery runs our graphql queries
 func ExecuteQuery(query string, schema graphql.Schema) (*graphql.Result, error) {
 	result := graphql.Do(graphql.Params{
 		Schema:        schema,
