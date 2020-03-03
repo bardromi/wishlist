@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
+	"net/http"
+	"time"
+
 	"github.com/bardromi/wishlist/internal/platform/auth"
 	"github.com/bardromi/wishlist/internal/platform/web"
 	"github.com/bardromi/wishlist/internal/user"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
-	"net/http"
-	"time"
 )
 
 type User struct {
@@ -22,7 +23,7 @@ type Login struct {
 
 func (u *User) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	usr, err := user.GetUserById(u.db, vars["id"])
+	usr, err := user.GetUserByID(u.db, vars["id"])
 
 	if err != nil {
 		web.RespondError(w, "User not found", http.StatusOK)
