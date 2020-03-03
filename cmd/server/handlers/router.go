@@ -5,6 +5,7 @@ import (
 
 	"github.com/bardromi/wishlist/internal/gql"
 	"github.com/bardromi/wishlist/internal/mid"
+	"github.com/friendsofgo/graphiql"
 	"github.com/gorilla/mux"
 	"github.com/jmoiron/sqlx"
 )
@@ -30,7 +31,13 @@ func API(db *sqlx.DB) http.Handler {
 		GqlSchema: gqlRoot,
 	}
 
+	graphiqlHandler, err := graphiql.NewGraphiqlHandler("/graphql")
+	if err != nil {
+		panic(err)
+	}
+
 	router.HandleFunc("/graphql", graphql.GraphQL)
+	router.Handle("/graphiql", graphiqlHandler)
 
 	return router
 }
