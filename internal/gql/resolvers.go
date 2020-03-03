@@ -13,6 +13,7 @@ type Resolver struct {
 	db *sqlx.DB
 }
 
+// UserGetUserByID graphql connector to get user by id
 func (r *Resolver) UserGetUserByID(p graphql.ResolveParams) (interface{}, error) {
 	// Strip the name from arguments and assert that it's a string
 	id, ok := p.Args["id"].(string)
@@ -26,6 +27,7 @@ func (r *Resolver) UserGetUserByID(p graphql.ResolveParams) (interface{}, error)
 	return nil, nil
 }
 
+// UserList graphql connector to get all users
 func (r *Resolver) UserList(p graphql.ResolveParams) (interface{}, error) {
 	// Strip the name from arguments and assert that it's a string
 	users, err := user.List(r.db)
@@ -35,6 +37,7 @@ func (r *Resolver) UserList(p graphql.ResolveParams) (interface{}, error) {
 	return users, nil
 }
 
+// SignUp graphql connector to create user
 func (r *Resolver) SignUp(p graphql.ResolveParams) (interface{}, error) {
 	nu := user.NewUser{
 		Name:            p.Args["name"].(string),
@@ -51,6 +54,7 @@ func (r *Resolver) SignUp(p graphql.ResolveParams) (interface{}, error) {
 	return usr, nil
 }
 
+// SignIn graphql connector to authenticate <<not implemented yet>>
 func (r *Resolver) SignIn(p graphql.ResolveParams) (interface{}, error) {
 	return nil, errors.New("not Implemented")
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// NewRoot create scheme root includes Query and Mutation
 func NewRoot(db *sqlx.DB) *graphql.Schema {
 	resolver := Resolver{db: db}
 
