@@ -24,7 +24,7 @@ func buildMutation(resolver Resolver) *graphql.Object {
 							Type: graphql.String,
 						},
 					},
-					Resolve: resolver.SignUp,
+					Resolve: resolver.signUp,
 				},
 				"SignIn": &graphql.Field{
 					Type:        userType,
@@ -37,7 +37,7 @@ func buildMutation(resolver Resolver) *graphql.Object {
 							Type: graphql.String,
 						},
 					},
-					Resolve: resolver.SignIn,
+					Resolve: resolver.signIn,
 				},
 				// Todo: Implement
 				"updateUser": &graphql.Field{
@@ -58,6 +58,22 @@ func buildMutation(resolver Resolver) *graphql.Object {
 							Type: graphql.String,
 						},
 					},
+				},
+				"createWish": &graphql.Field{
+					Type:        wishType,
+					Description: "create new wish",
+					Args: graphql.FieldConfigArgument{
+						"owner": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"title": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"price": &graphql.ArgumentConfig{
+							Type: graphql.Float,
+						},
+					},
+					Resolve: resolver.wishCreateWish,
 				},
 			},
 		},

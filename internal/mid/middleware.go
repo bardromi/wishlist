@@ -1,10 +1,11 @@
 package mid
 
 import (
-	"github.com/bardromi/wishlist/internal/platform/auth"
-	"github.com/bardromi/wishlist/internal/platform/web"
 	"log"
 	"net/http"
+
+	"github.com/bardromi/wishlist/internal/platform/auth"
+	"github.com/bardromi/wishlist/internal/platform/web"
 )
 
 type MiddleWare func(http.Handler) http.Handler
@@ -29,7 +30,7 @@ func Logging(next http.Handler) http.Handler {
 func Authenticated(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// We can obtain the session token from the requests cookies, which come with every request
-		c, err := r.Cookie("WishList")
+		cookie, err := r.Cookie("WishList")
 		if err != nil {
 			if err == http.ErrNoCookie {
 				// If the cookie is not set, return an unauthorized status
@@ -42,7 +43,7 @@ func Authenticated(next http.Handler) http.Handler {
 		}
 
 		// Get the JWT string from the cookie
-		tknStr := c.Value
+		tknStr := cookie.Value
 
 		_, err = auth.ParseClaims(tknStr)
 

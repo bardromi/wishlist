@@ -14,7 +14,7 @@ type Resolver struct {
 }
 
 // UserGetUserByID graphql connector to get user by id
-func (r *Resolver) UserGetUserByID(p graphql.ResolveParams) (interface{}, error) {
+func (r *Resolver) userGetUserByID(p graphql.ResolveParams) (interface{}, error) {
 	// Strip the name from arguments and assert that it's a string
 	id, ok := p.Args["id"].(string)
 	if ok {
@@ -28,7 +28,7 @@ func (r *Resolver) UserGetUserByID(p graphql.ResolveParams) (interface{}, error)
 }
 
 // UserList graphql connector to get all users
-func (r *Resolver) UserList(p graphql.ResolveParams) (interface{}, error) {
+func (r *Resolver) userList(p graphql.ResolveParams) (interface{}, error) {
 	// Strip the name from arguments and assert that it's a string
 	users, err := user.List(r.db)
 	if err != nil {
@@ -38,7 +38,7 @@ func (r *Resolver) UserList(p graphql.ResolveParams) (interface{}, error) {
 }
 
 // SignUp graphql connector to create user
-func (r *Resolver) SignUp(p graphql.ResolveParams) (interface{}, error) {
+func (r *Resolver) signUp(p graphql.ResolveParams) (interface{}, error) {
 	nu := user.NewUser{
 		Name:            p.Args["name"].(string),
 		Email:           p.Args["email"].(string),
@@ -55,6 +55,17 @@ func (r *Resolver) SignUp(p graphql.ResolveParams) (interface{}, error) {
 }
 
 // SignIn graphql connector to authenticate <<not implemented yet>>
-func (r *Resolver) SignIn(p graphql.ResolveParams) (interface{}, error) {
+func (r *Resolver) signIn(p graphql.ResolveParams) (interface{}, error) {
+	return nil, errors.New("not Implemented")
+}
+
+func (r *Resolver) wishCreateWish(p graphql.ResolveParams) (interface{}, error) {
+
+	// owner,err := r.userGetUserByID(p.Args)
+
+	// nw := wish.NewWish{
+	// 	Title: p.Args["title"].(string),
+	// 	Price: p.Args["price"].(float64),
+	// }
 	return nil, errors.New("not Implemented")
 }

@@ -2,8 +2,9 @@ package auth
 
 import (
 	"errors"
-	"github.com/dgrijalva/jwt-go"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 // Create the JWT key used to create the signature
