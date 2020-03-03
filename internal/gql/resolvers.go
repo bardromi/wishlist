@@ -2,6 +2,7 @@ package gql
 
 import (
 	"errors"
+
 	"github.com/bardromi/wishlist/internal/user"
 	"github.com/graphql-go/graphql"
 	"github.com/jmoiron/sqlx"
@@ -12,11 +13,11 @@ type Resolver struct {
 	db *sqlx.DB
 }
 
-func (r *Resolver) UserGetUserById(p graphql.ResolveParams) (interface{}, error) {
+func (r *Resolver) UserGetUserByID(p graphql.ResolveParams) (interface{}, error) {
 	// Strip the name from arguments and assert that it's a string
 	id, ok := p.Args["id"].(string)
 	if ok {
-		users, err := user.GetUserById(r.db, id)
+		users, err := user.GetUserByID(r.db, id)
 		if err != nil {
 			return nil, err
 		}

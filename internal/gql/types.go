@@ -1,6 +1,8 @@
 package gql
 
-import "github.com/graphql-go/graphql"
+import (
+	"github.com/graphql-go/graphql"
+)
 
 var userType = graphql.NewObject(
 	graphql.ObjectConfig{

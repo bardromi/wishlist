@@ -8,7 +8,7 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 
-	"errors"
+	"github.com/pkg/errors"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -28,7 +28,8 @@ var (
 	ErrAuthenticationFailure = errors.New("authentication failed")
 )
 
-func GetUserById(db *sqlx.DB, id string) (*User, error) {
+// GetUserByID gets the specified user from the database.
+func GetUserByID(db *sqlx.DB, id string) (*User, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, ErrInvalidID
 	}
@@ -44,23 +45,25 @@ func GetUserById(db *sqlx.DB, id string) (*User, error) {
 			return nil, ErrNotFound
 		}
 
-		return nil, err
+		return nil, errors.Wrapf(err, "selecting user %q", id)
 	}
 
 	return &u, nil
 }
 
+// List retrieves a list of existing users from the database.
 func List(db *sqlx.DB) ([]User, error) {
 	var users []User
 	const q = `SELECT * FROM users`
 
 	if err := db.Select(&users, q); err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "selecting users")
 	}
 
 	return users, nil
 }
 
+// if want to use with graphql and reserve the package oriented design should get fields of new user and not new user
 func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
 	if nu.Password != nu.PasswordConfirm {
 		return nil, ErrValidateConfirmPassword
@@ -70,7 +73,7 @@ func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
 	// The second argument is the cost of hashing, which we arbitrarily set as 8 (this value can be more or less, depending on the computing power you wish to utilize)
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(nu.Password), 8)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "generating password hash")
 	}
 
 	u := User{
@@ -88,7 +91,7 @@ func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
 
 	_, err = db.Exec(q, u.ID, u.Name, u.Email, u.PasswordHash, u.CreatedAt)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "inserting user")
 	}
 
 	return &u, nil
@@ -109,7 +112,7 @@ func SignIn(db *sqlx.DB, now time.Time, email, password string) (auth.Claims, er
 			return auth.Claims{}, ErrAuthenticationFailure
 		}
 
-		return auth.Claims{}, err
+		return auth.Claims{}, errors.Wrap(err, "selecting single user")
 	}
 
 	// Compare the provided password with the saved hash. Use the bcrypt

@@ -18,7 +18,7 @@ func buildQuery(resolver Resolver) *graphql.Object {
 							Type: graphql.String,
 						},
 					},
-					Resolve: resolver.UserGetUserById,
+					Resolve: resolver.UserGetUserByID,
 				},
 				/* Get (read) users list
 				   http://localhost:8080/product?query={list{id,name,info,price}}

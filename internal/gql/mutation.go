@@ -39,6 +39,7 @@ func buildMutation(resolver Resolver) *graphql.Object {
 					},
 					Resolve: resolver.SignIn,
 				},
+				// Todo: Implement
 				"updateUser": &graphql.Field{
 					Type:        userType,
 					Description: "Update user by id",
@@ -48,6 +49,7 @@ func buildMutation(resolver Resolver) *graphql.Object {
 						},
 					},
 				},
+				// Todo: Implemet
 				"deleteUser": &graphql.Field{
 					Type:        userType,
 					Description: "Delete user by id",
