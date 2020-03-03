@@ -4,9 +4,9 @@ drop table users;
 create table users
 (
     id         uuid,
-    name       text      not null,
-    email      text unique,
-    password   text      not null,
+    name       VARCHAR (50)      not null,
+    email      VARCHAR (50) unique,
+    password   VARCHAR (50)      not null,
     created_at timestamp not null,
 
     PRIMARY KEY (id)
@@ -16,7 +16,7 @@ CREATE TABLE wishes
 (
     id SERIAL  ,
     owner_id uuid,
-    title text,
+    title VARCHAR (50),
     price numeric,
     created_at timestamp not null,
 
