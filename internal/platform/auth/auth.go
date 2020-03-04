@@ -10,9 +10,10 @@ import (
 // Create the JWT key used to create the signature
 var jwtKey = []byte("my_secret_key")
 
-// Create a struct that will be encoded to a JWT.
+// Claims Create a struct that will be encoded to a JWT.
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time
 type Claims struct {
+	ID    string `json:"id"`
 	Email string `json:"username"`
 	jwt.StandardClaims
 }
@@ -20,8 +21,9 @@ type Claims struct {
 // NewClaims constructs a Claims value for the identified user. The Claims
 // expire within a specified duration of the provided time. Additional fields
 // of the Claims can be set after calling NewClaims is desired.
-func NewClaims(email string, now time.Time, expires time.Duration) Claims {
+func NewClaims(id, email string, now time.Time, expires time.Duration) Claims {
 	c := Claims{
+		ID:    id,
 		Email: email,
 		StandardClaims: jwt.StandardClaims{
 			Subject:  "wishList",

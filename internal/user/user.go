@@ -123,7 +123,7 @@ func SignIn(db *sqlx.DB, now time.Time, email, password string) (auth.Claims, er
 
 	// If we are this far the request is valid. Create some claims for the user
 	// and generate their token.
-	claims := auth.NewClaims(u.Email, now, time.Hour)
+	claims := auth.NewClaims(u.ID, u.Email, now, time.Hour)
 
 	return claims, nil
 }
