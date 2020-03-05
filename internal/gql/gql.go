@@ -13,11 +13,12 @@ import (
 // NewRoot create scheme root includes Query and Mutation
 func NewRoot(db *sqlx.DB) *graphql.Schema {
 	resolver := Resolver{db: db}
+	typeResolver := TypeResolver{db: db}
 
 	var schema, _ = graphql.NewSchema(
 		graphql.SchemaConfig{
-			Query:    buildQuery(resolver),
-			Mutation: buildMutation(resolver),
+			Query:    buildQuery(resolver, typeResolver),
+			Mutation: buildMutation(resolver, typeResolver),
 		},
 	)
 
