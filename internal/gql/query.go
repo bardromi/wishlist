@@ -2,7 +2,7 @@ package gql
 
 import "github.com/graphql-go/graphql"
 
-func buildQuery(resolver Resolver) *graphql.Object {
+func buildQuery(resolver Resolver, typeResolver TypeResolver) *graphql.Object {
 	var queryType = graphql.NewObject(
 		graphql.ObjectConfig{
 			Name: "Query",

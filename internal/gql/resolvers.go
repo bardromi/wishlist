@@ -3,7 +3,9 @@ package gql
 import (
 	"errors"
 
+	"github.com/bardromi/wishlist/internal/platform/auth"
 	"github.com/bardromi/wishlist/internal/user"
+	"github.com/bardromi/wishlist/internal/wish"
 	"github.com/graphql-go/graphql"
 	"github.com/jmoiron/sqlx"
 )
@@ -61,11 +63,22 @@ func (r *Resolver) signIn(p graphql.ResolveParams) (interface{}, error) {
 
 func (r *Resolver) wishCreateWish(p graphql.ResolveParams) (interface{}, error) {
 
-	// owner,err := r.userGetUserByID(p.Args)
+	claim := p.Context.Value("token").(auth.Claims)
 
-	// nw := wish.NewWish{
-	// 	Title: p.Args["title"].(string),
-	// 	Price: p.Args["price"].(float64),
-	// }
-	return nil, errors.New("not Implemented")
+	if claim.UserID == "" {
+		return nil, errors.New("Cannot add wish without owner")
+	}
+
+	nw := wish.NewWish{
+		OwnerID: claim.UserID,
+		Title:   p.Args["title"].(string),
+		Price:   p.Args["price"].(float64),
+	}
+
+	wish, err := wish.Create(r.db, &nw)
+	if err != nil {
+		return nil, err
+	}
+
+	return wish, nil
 }

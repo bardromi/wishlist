@@ -1,6 +1,7 @@
 package wish
 
 import (
+	"log"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -21,15 +22,25 @@ func Create(db *sqlx.DB, nw *NewWish) (*Wish, error) {
 	INSERT INTO wishes
 	(owner_id, title, price, created_at)
 	VALUES($1, $2, $3, $4)
+	RETURNING id
 	`
+	stmt, err := db.Prepare(q)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer stmt.Close()
 
-	row, err := db.Exec(q, wish.OwnerID, wish.Title, wish.Price, wish.CreatedAt)
-	id, err := row.LastInsertId()
+	var wishID int64
+	err = stmt.QueryRow(wish.OwnerID, wish.Title, wish.Price, wish.CreatedAt).Scan(&wishID)
 	if err != nil {
 		return nil, errors.Wrap(err, "inserting wish")
 	}
+	// row, err := db.Exec(q, wish.OwnerID, wish.Title, wish.Price, wish.CreatedAt)
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "inserting wish")
+	// }
 
-	wish.ID = id
+	wish.ID = wishID
 
 	return &wish, nil
 }

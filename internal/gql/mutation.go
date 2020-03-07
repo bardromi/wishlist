@@ -2,7 +2,7 @@ package gql
 
 import "github.com/graphql-go/graphql"
 
-func buildMutation(resolver Resolver) *graphql.Object {
+func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object {
 	var mutationType = graphql.NewObject(
 		graphql.ObjectConfig{
 			Name: "Mutation",
@@ -60,7 +60,7 @@ func buildMutation(resolver Resolver) *graphql.Object {
 					},
 				},
 				"createWish": &graphql.Field{
-					Type:        wishType,
+					Type:        wishType(typeResolver),
 					Description: "create new wish",
 					Args: graphql.FieldConfigArgument{
 						"owner": &graphql.ArgumentConfig{

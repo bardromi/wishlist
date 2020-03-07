@@ -36,7 +36,7 @@ func (g *GraphQL) GraphQL(w http.ResponseWriter, r *http.Request) {
 	var claims auth.Claims
 	cookie, claimsErr := r.Cookie("WishList")
 	if claimsErr == nil {
-		claims, claimsErr = auth.ParseClaims(cookie.Value)
+		claims, _ = auth.ParseClaims(cookie.Value)
 	}
 
 	// Execute graphql query
