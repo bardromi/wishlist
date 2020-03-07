@@ -21,22 +21,26 @@ var userType = graphql.NewObject(
 	},
 )
 
-var wishType = graphql.NewObject(
-	graphql.ObjectConfig{
-		Name: "Wish",
-		Fields: graphql.Fields{
-			"id": &graphql.Field{
-				Type: graphql.String,
-			},
-			"owner": &graphql.Field{
-				Type: userType,
-			},
-			"title": &graphql.Field{
-				Type: graphql.String,
-			},
-			"price": &graphql.Field{
-				Type: graphql.Float,
+func wishType(typeResolver TypeResolver) *graphql.Object {
+	var wishType = graphql.NewObject(
+		graphql.ObjectConfig{
+			Name: "Wish",
+			Fields: graphql.Fields{
+				"id": &graphql.Field{
+					Type: graphql.String,
+				},
+				"owner": &graphql.Field{
+					Type:    userType,
+					Resolve: typeResolver.getUserbyID,
+				},
+				"title": &graphql.Field{
+					Type: graphql.String,
+				},
+				"price": &graphql.Field{
+					Type: graphql.Float,
+				},
 			},
 		},
-	},
-)
+	)
+	return wishType
+}
