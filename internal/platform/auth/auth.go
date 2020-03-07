@@ -13,8 +13,8 @@ var jwtKey = []byte("my_secret_key")
 // Claims Create a struct that will be encoded to a JWT.
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time
 type Claims struct {
-	ID    string `json:"id"`
-	Email string `json:"username"`
+	UserID string `json:"id"`
+	Email  string `json:"username"`
 	jwt.StandardClaims
 }
 
@@ -23,8 +23,8 @@ type Claims struct {
 // of the Claims can be set after calling NewClaims is desired.
 func NewClaims(id, email string, now time.Time, expires time.Duration) Claims {
 	c := Claims{
-		ID:    id,
-		Email: email,
+		UserID: id,
+		Email:  email,
 		StandardClaims: jwt.StandardClaims{
 			Subject:  "wishList",
 			IssuedAt: now.Unix(),
