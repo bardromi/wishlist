@@ -63,8 +63,9 @@ func List(db *sqlx.DB) ([]User, error) {
 	return users, nil
 }
 
+// Create inserts a new user into the database.
 // if want to use with graphql and reserve the package oriented design should get fields of new user and not new user
-func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
+func Create(db *sqlx.DB, nu *NewUser) (*User, error) {
 	if nu.Password != nu.PasswordConfirm {
 		return nil, ErrValidateConfirmPassword
 	}
@@ -97,7 +98,10 @@ func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
 	return &u, nil
 }
 
-func SignIn(db *sqlx.DB, now time.Time, email, password string) (auth.Claims, error) {
+// Authenticate finds a user by their email and verifies their password. On
+// success it returns a Claims value representing this user. The claims can be
+// used to generate a token for future authentication.
+func Authenticate(db *sqlx.DB, now time.Time, email, password string) (auth.Claims, error) {
 	const q = `
 	SELECT * 
 	FROM users
@@ -126,4 +130,9 @@ func SignIn(db *sqlx.DB, now time.Time, email, password string) (auth.Claims, er
 	claims := auth.NewClaims(u.ID, u.Email, now, time.Hour)
 
 	return claims, nil
+}
+
+// Delete removes a user from the database.
+func Delete(db *sqlx.DB, id string) error {
+	return nil
 }

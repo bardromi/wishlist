@@ -12,6 +12,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// User represents the User API method handler set.
 type User struct {
 	db *sqlx.DB
 }
@@ -21,6 +22,7 @@ type Login struct {
 	Password string `json:"password"`
 }
 
+// GetUser returns the specified user from the system.
 func (u *User) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	usr, err := user.GetUserByID(u.db, vars["id"])
@@ -33,6 +35,7 @@ func (u *User) GetUser(w http.ResponseWriter, r *http.Request) {
 	web.Respond(w, usr, http.StatusOK)
 }
 
+// List returns all the existing users in the system.
 func (u *User) List(w http.ResponseWriter, r *http.Request) {
 	usrs, err := user.List(u.db)
 	if err != nil {
@@ -43,6 +46,7 @@ func (u *User) List(w http.ResponseWriter, r *http.Request) {
 	web.Respond(w, usrs, http.StatusOK)
 }
 
+// SignUp inserts a new user into the system.
 func (u *User) SignUp(w http.ResponseWriter, r *http.Request) {
 	var nu user.NewUser
 	// Get the JSON body and decode into credentials
@@ -53,7 +57,7 @@ func (u *User) SignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	usr, err := user.SignUp(u.db, &nu)
+	usr, err := user.Create(u.db, &nu)
 	if err != nil {
 		web.RespondError(w, err.Error(), http.StatusBadRequest)
 		return
@@ -62,6 +66,8 @@ func (u *User) SignUp(w http.ResponseWriter, r *http.Request) {
 	web.Respond(w, usr, http.StatusOK)
 }
 
+// SignIn authenticate a user. It expects a request using
+// Basic Auth with a user's email and password. It responds with a JWT.
 func (u *User) SignIn(w http.ResponseWriter, r *http.Request) {
 	var login Login
 
@@ -72,7 +78,7 @@ func (u *User) SignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	claims, err := user.SignIn(u.db, time.Now(), login.Email, login.Password)
+	claims, err := user.Authenticate(u.db, time.Now(), login.Email, login.Password)
 	if err != nil {
 		web.RespondError(w, err.Error(), http.StatusUnauthorized)
 		return
@@ -95,6 +101,7 @@ func (u *User) SignIn(w http.ResponseWriter, r *http.Request) {
 	web.Respond(w, map[string]string{"email": claims.Email}, http.StatusOK)
 }
 
+// SignOut disconnect user from system
 func (u *User) SignOut(w http.ResponseWriter, r *http.Request) {
 	expiredCookie := http.Cookie{
 		Name:     "WishList",

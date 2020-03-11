@@ -48,7 +48,7 @@ func (r *Resolver) signUp(p graphql.ResolveParams) (interface{}, error) {
 		PasswordConfirm: p.Args["passwordConfirm"].(string),
 	}
 
-	usr, err := user.SignUp(r.db, &nu)
+	usr, err := user.Create(r.db, &nu)
 	if err != nil {
 		return nil, err
 	}
