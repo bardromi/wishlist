@@ -138,7 +138,7 @@ func Delete(db *sqlx.DB, id string) error {
 		return ErrInvalidID
 	}
 
-	const q = `DELETE FROM users WHERE user_id = $1`
+	const q = `DELETE FROM users WHERE id = $1`
 
 	if _, err := db.Exec(q, id); err != nil {
 		return errors.Wrapf(err, "deleting user %s", id)
