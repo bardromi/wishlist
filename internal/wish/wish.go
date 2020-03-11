@@ -46,3 +46,24 @@ func Create(db *sqlx.DB, nw *NewWish) (*Wish, error) {
 
 	return &wish, nil
 }
+
+func GetWishesByUserID(db *sqlx.DB, id string) ([]*Wish, error) {
+	var wishes []Wish
+
+	const q = `
+	SELECT * 
+	FROM wishes
+	WHERE owner_id =$1`
+
+	if err := db.Select(&wishes, q, id); err != nil {
+		return nil, errors.Wrapf(err, "selecting wishes by user %s", id)
+	}
+
+	wishesPointer := []*Wish{}
+
+	for _, wish := range wishes {
+		wishesPointer = append(wishesPointer, &wish)
+	}
+
+	return wishesPointer, nil
+}
