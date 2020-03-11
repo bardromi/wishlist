@@ -12,7 +12,7 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 				//////////////////////////////////////////////////////////////////
 				// Post create a user
 				"SignUp": &graphql.Field{
-					Type:        userType,
+					Type:        userType(typeResolver),
 					Description: "Sign up new user",
 					Args: graphql.FieldConfigArgument{
 						"name": &graphql.ArgumentConfig{
@@ -32,7 +32,7 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 				},
 				// Post Login a user (Not Implemetnted)
 				"SignIn": &graphql.Field{
-					Type:        userType,
+					Type:        userType(typeResolver),
 					Description: "Sign in user",
 					Args: graphql.FieldConfigArgument{
 						"email": &graphql.ArgumentConfig{
@@ -46,7 +46,7 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 				},
 				// Todo: Implement
 				"updateUser": &graphql.Field{
-					Type:        userType,
+					Type:        userType(typeResolver),
 					Description: "Update user by id",
 					Args: graphql.FieldConfigArgument{
 						"id": &graphql.ArgumentConfig{
@@ -54,15 +54,15 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 						},
 					},
 				},
-				// Todo: Implemet
 				"deleteUser": &graphql.Field{
-					Type:        userType,
+					Type:        userType(typeResolver),
 					Description: "Delete user by id",
 					Args: graphql.FieldConfigArgument{
 						"id": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
 					},
+					Resolve: resolver.userDeleteUser,
 				},
 
 				//////////////////////////////////////////////////////////////////
