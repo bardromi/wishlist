@@ -11,7 +11,7 @@ func buildQuery(resolver Resolver, typeResolver TypeResolver) *graphql.Object {
 				   http://localhost:8080/user?query={user(id:1){id,name,email}}
 				*/
 				"user": &graphql.Field{
-					Type:        userType,
+					Type:        userType(typeResolver),
 					Description: "Get user by id",
 					Args: graphql.FieldConfigArgument{
 						"id": &graphql.ArgumentConfig{
@@ -24,7 +24,7 @@ func buildQuery(resolver Resolver, typeResolver TypeResolver) *graphql.Object {
 				   http://localhost:8080/product?query={list{id,name,info,price}}
 				*/
 				"users": &graphql.Field{
-					Type:        graphql.NewList(userType),
+					Type:        graphql.NewList(userType(typeResolver)),
 					Description: "Get users list",
 					Resolve:     resolver.userList,
 				},
