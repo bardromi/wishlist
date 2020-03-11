@@ -7,6 +7,10 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 		graphql.ObjectConfig{
 			Name: "Mutation",
 			Fields: graphql.Fields{
+				//////////////////////////////////////////////////////////////////
+				///////////////////////        USER        ///////////////////////
+				//////////////////////////////////////////////////////////////////
+				// Post create a user
 				"SignUp": &graphql.Field{
 					Type:        userType,
 					Description: "Sign up new user",
@@ -26,6 +30,7 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 					},
 					Resolve: resolver.signUp,
 				},
+				// Post Login a user (Not Implemetnted)
 				"SignIn": &graphql.Field{
 					Type:        userType,
 					Description: "Sign in user",
@@ -59,6 +64,10 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 						},
 					},
 				},
+
+				//////////////////////////////////////////////////////////////////
+				///////////////////////        WISH        ///////////////////////
+				//////////////////////////////////////////////////////////////////
 				"createWish": &graphql.Field{
 					Type:        wishType(typeResolver),
 					Description: "create new wish",
