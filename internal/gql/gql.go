@@ -10,6 +10,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+type key string
+
 // NewRoot create scheme root includes Query and Mutation
 func NewRoot(db *sqlx.DB) *graphql.Schema {
 	resolver := Resolver{db: db}
@@ -27,10 +29,11 @@ func NewRoot(db *sqlx.DB) *graphql.Schema {
 
 // ExecuteQuery runs our graphql queries
 func ExecuteQuery(query string, schema graphql.Schema, claims auth.Claims) (*graphql.Result, error) {
+	const token key = "token"
 	result := graphql.Do(graphql.Params{
 		Schema:        schema,
 		RequestString: query,
-		Context:       context.WithValue(context.Background(), "token", claims),
+		Context:       context.WithValue(context.Background(), token, claims),
 	})
 
 	if len(result.Errors) > 0 {
