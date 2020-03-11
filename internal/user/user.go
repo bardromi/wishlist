@@ -20,7 +20,7 @@ var (
 	// ErrInvalidID occurs when an ID is not in a valid form.
 	ErrInvalidID = errors.New("ID is not in its proper form")
 
-	// ErrValidateConfirmPassword occurs when password doesnt match
+	// ErrValidateConfirmPassword occurs when password doesn't match
 	ErrValidateConfirmPassword = errors.New("password confirmation failed")
 
 	// ErrAuthenticationFailure occurs when a user attempts to authenticate but
@@ -116,7 +116,7 @@ func Authenticate(db *sqlx.DB, now time.Time, email, password string) (auth.Clai
 			return auth.Claims{}, ErrAuthenticationFailure
 		}
 
-		return auth.Claims{}, errors.Wrap(err, "selecting single user")
+		return auth.Claims{}, errors.Wrapf(err, "selecting single user %s", email)
 	}
 
 	// Compare the provided password with the saved hash. Use the bcrypt
@@ -134,5 +134,15 @@ func Authenticate(db *sqlx.DB, now time.Time, email, password string) (auth.Clai
 
 // Delete removes a user from the database.
 func Delete(db *sqlx.DB, id string) error {
+	if _, err := uuid.Parse(id); err != nil {
+		return ErrInvalidID
+	}
+
+	const q = `DELETE FROM users WHERE user_id = $1`
+
+	if _, err := db.Exec(q, id); err != nil {
+		return errors.Wrapf(err, "deleting user %s", id)
+	}
+
 	return nil
 }
