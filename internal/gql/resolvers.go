@@ -2,7 +2,6 @@ package gql
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/bardromi/wishlist/internal/platform/auth"
 	"github.com/bardromi/wishlist/internal/user"
@@ -103,19 +102,18 @@ func (r *Resolver) userDeleteUser(p graphql.ResolveParams) (interface{}, error) 
 	// Strip the name from arguments and assert that it's a string
 	id, ok := p.Args["id"].(string)
 	if ok {
-		err := user.Delete(r.db, id)
+
+		userFromDB, err := user.GetUserByID(r.db, id)
 		if err != nil {
 			return nil, err
 		}
 
-		message := fmt.Sprintf("user %s deleted successfully", id)
-		return message, nil
-		// if user deleted successfully return user
-		// user, err := user.GetUserByID(r.db, id)
-		// if err != nil {
-		// 	return nil, err
-		// }
-		// return user, nil
+		err = user.Delete(r.db, id)
+		if err != nil {
+			return nil, err
+		}
+
+		return userFromDB, nil
 	}
 
 	return nil, ErrValidationFailed

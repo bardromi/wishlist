@@ -55,7 +55,7 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 					},
 				},
 				"deleteUser": &graphql.Field{
-					Type:        graphql.String,
+					Type:        userType(typeResolver),
 					Description: "Delete user by id",
 					Args: graphql.FieldConfigArgument{
 						"id": &graphql.ArgumentConfig{
