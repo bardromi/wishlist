@@ -3,7 +3,9 @@ package gql
 import (
 	"errors"
 
+	"github.com/bardromi/wishlist/internal/platform/auth"
 	"github.com/bardromi/wishlist/internal/user"
+	"github.com/bardromi/wishlist/internal/wish"
 	"github.com/graphql-go/graphql"
 	"github.com/jmoiron/sqlx"
 )
@@ -13,20 +15,27 @@ type Resolver struct {
 	db *sqlx.DB
 }
 
-func (r *Resolver) UserGetUserByID(p graphql.ResolveParams) (interface{}, error) {
+var (
+	// ErrValidationFailed abstracts the postgres not found error.
+	ErrValidationFailed = errors.New("one or more of parameters are invalid")
+)
+
+// UserGetUserByID graphql connector to get user by id
+func (r *Resolver) userGetUserByID(p graphql.ResolveParams) (interface{}, error) {
 	// Strip the name from arguments and assert that it's a string
 	id, ok := p.Args["id"].(string)
 	if ok {
-		users, err := user.GetUserByID(r.db, id)
+		user, err := user.GetUserByID(r.db, id)
 		if err != nil {
 			return nil, err
 		}
-		return users, nil
+		return user, nil
 	}
-	return nil, nil
+	return nil, ErrValidationFailed
 }
 
-func (r *Resolver) UserList(p graphql.ResolveParams) (interface{}, error) {
+// UserList graphql connector to get all users
+func (r *Resolver) userList(p graphql.ResolveParams) (interface{}, error) {
 	// Strip the name from arguments and assert that it's a string
 	users, err := user.List(r.db)
 	if err != nil {
@@ -35,22 +44,77 @@ func (r *Resolver) UserList(p graphql.ResolveParams) (interface{}, error) {
 	return users, nil
 }
 
-func (r *Resolver) SignUp(p graphql.ResolveParams) (interface{}, error) {
-	nu := user.NewUser{
-		Name:            p.Args["name"].(string),
-		Email:           p.Args["email"].(string),
-		Password:        p.Args["password"].(string),
-		PasswordConfirm: p.Args["passwordConfirm"].(string),
+// SignUp graphql connector to create user
+func (r *Resolver) signUp(p graphql.ResolveParams) (interface{}, error) {
+	name, okName := p.Args["name"].(string)
+	email, okEmail := p.Args["email"].(string)
+	password, okPassword := p.Args["password"].(string)
+	passwordConfirm, okPasswordConfirm := p.Args["passwordConfirm"].(string)
+
+	if okName && okEmail && okPassword && okPasswordConfirm {
+		nu := user.NewUser{
+			Name:            name,
+			Email:           email,
+			Password:        password,
+			PasswordConfirm: passwordConfirm,
+		}
+
+		usr, err := user.Create(r.db, &nu)
+		if err != nil {
+			return nil, err
+		}
+
+		return usr, nil
 	}
 
-	usr, err := user.SignUp(r.db, &nu)
+	return nil, ErrValidationFailed
+}
+
+// SignIn graphql connector to authenticate <<not implemented yet>>
+func (r *Resolver) signIn(p graphql.ResolveParams) (interface{}, error) {
+	return nil, errors.New("not Implemented")
+}
+
+func (r *Resolver) wishCreateWish(p graphql.ResolveParams) (interface{}, error) {
+
+	claim := p.Context.Value("token").(auth.Claims)
+
+	if claim.UserID == "" {
+		return nil, errors.New("Cannot add wish without owner")
+	}
+
+	// Todo: type assertion
+	nw := wish.NewWish{
+		OwnerID: claim.UserID,
+		Title:   p.Args["title"].(string),
+		Price:   p.Args["price"].(float64),
+	}
+
+	wish, err := wish.Create(r.db, &nw)
 	if err != nil {
 		return nil, err
 	}
 
-	return usr, nil
+	return wish, nil
 }
 
-func (r *Resolver) SignIn(p graphql.ResolveParams) (interface{}, error) {
-	return nil, errors.New("not Implemented")
+func (r *Resolver) userDeleteUser(p graphql.ResolveParams) (interface{}, error) {
+	// Strip the name from arguments and assert that it's a string
+	id, ok := p.Args["id"].(string)
+	if ok {
+
+		userFromDB, err := user.GetUserByID(r.db, id)
+		if err != nil {
+			return nil, err
+		}
+
+		err = user.Delete(r.db, id)
+		if err != nil {
+			return nil, err
+		}
+
+		return userFromDB, nil
+	}
+
+	return nil, ErrValidationFailed
 }

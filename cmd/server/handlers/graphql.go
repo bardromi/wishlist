@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/bardromi/wishlist/internal/gql"
+	"github.com/bardromi/wishlist/internal/platform/auth"
 	"github.com/bardromi/wishlist/internal/platform/web"
 	"github.com/graphql-go/graphql"
 )
@@ -32,8 +33,14 @@ func (g *GraphQL) GraphQL(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var claims auth.Claims
+	cookie, claimsErr := r.Cookie("WishList")
+	if claimsErr == nil {
+		claims, _ = auth.ParseClaims(cookie.Value)
+	}
+
 	// Execute graphql query
-	result, err := gql.ExecuteQuery(rBody.Query, *g.GqlSchema)
+	result, err := gql.ExecuteQuery(rBody.Query, *g.GqlSchema, claims)
 
 	if err != nil {
 		web.RespondError(w, err.Error(), http.StatusInternalServerError)

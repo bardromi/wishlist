@@ -20,7 +20,7 @@ var (
 	// ErrInvalidID occurs when an ID is not in a valid form.
 	ErrInvalidID = errors.New("ID is not in its proper form")
 
-	// ErrValidateConfirmPassword occurs when password doesnt match
+	// ErrValidateConfirmPassword occurs when password doesn't match
 	ErrValidateConfirmPassword = errors.New("password confirmation failed")
 
 	// ErrAuthenticationFailure occurs when a user attempts to authenticate but
@@ -63,8 +63,9 @@ func List(db *sqlx.DB) ([]User, error) {
 	return users, nil
 }
 
+// Create inserts a new user into the database.
 // if want to use with graphql and reserve the package oriented design should get fields of new user and not new user
-func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
+func Create(db *sqlx.DB, nu *NewUser) (*User, error) {
 	if nu.Password != nu.PasswordConfirm {
 		return nil, ErrValidateConfirmPassword
 	}
@@ -97,7 +98,10 @@ func SignUp(db *sqlx.DB, nu *NewUser) (*User, error) {
 	return &u, nil
 }
 
-func SignIn(db *sqlx.DB, now time.Time, email, password string) (auth.Claims, error) {
+// Authenticate finds a user by their email and verifies their password. On
+// success it returns a Claims value representing this user. The claims can be
+// used to generate a token for future authentication.
+func Authenticate(db *sqlx.DB, now time.Time, email, password string) (auth.Claims, error) {
 	const q = `
 	SELECT * 
 	FROM users
@@ -112,7 +116,7 @@ func SignIn(db *sqlx.DB, now time.Time, email, password string) (auth.Claims, er
 			return auth.Claims{}, ErrAuthenticationFailure
 		}
 
-		return auth.Claims{}, errors.Wrap(err, "selecting single user")
+		return auth.Claims{}, errors.Wrapf(err, "selecting single user %s", email)
 	}
 
 	// Compare the provided password with the saved hash. Use the bcrypt
@@ -123,7 +127,22 @@ func SignIn(db *sqlx.DB, now time.Time, email, password string) (auth.Claims, er
 
 	// If we are this far the request is valid. Create some claims for the user
 	// and generate their token.
-	claims := auth.NewClaims(u.Email, now, time.Hour)
+	claims := auth.NewClaims(u.ID, u.Email, now, time.Hour)
 
 	return claims, nil
+}
+
+// Delete removes a user from the database.
+func Delete(db *sqlx.DB, id string) error {
+	if _, err := uuid.Parse(id); err != nil {
+		return ErrInvalidID
+	}
+
+	const q = `DELETE FROM users WHERE id = $1`
+
+	if _, err := db.Exec(q, id); err != nil {
+		return errors.Wrapf(err, "deleting user %s", id)
+	}
+
+	return nil
 }

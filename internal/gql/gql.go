@@ -1,20 +1,24 @@
 package gql
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
+	"github.com/bardromi/wishlist/internal/platform/auth"
 	"github.com/graphql-go/graphql"
 	"github.com/jmoiron/sqlx"
 )
 
+// NewRoot create scheme root includes Query and Mutation
 func NewRoot(db *sqlx.DB) *graphql.Schema {
 	resolver := Resolver{db: db}
+	typeResolver := TypeResolver{db: db}
 
 	var schema, _ = graphql.NewSchema(
 		graphql.SchemaConfig{
-			Query:    buildQuery(resolver),
-			Mutation: buildMutation(resolver),
+			Query:    buildQuery(resolver, typeResolver),
+			Mutation: buildMutation(resolver, typeResolver),
 		},
 	)
 
@@ -22,10 +26,11 @@ func NewRoot(db *sqlx.DB) *graphql.Schema {
 }
 
 // ExecuteQuery runs our graphql queries
-func ExecuteQuery(query string, schema graphql.Schema) (*graphql.Result, error) {
+func ExecuteQuery(query string, schema graphql.Schema, claims auth.Claims) (*graphql.Result, error) {
 	result := graphql.Do(graphql.Params{
 		Schema:        schema,
 		RequestString: query,
+		Context:       context.WithValue(context.Background(), "token", claims),
 	})
 
 	if len(result.Errors) > 0 {

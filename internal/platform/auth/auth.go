@@ -2,26 +2,29 @@ package auth
 
 import (
 	"errors"
-	"github.com/dgrijalva/jwt-go"
 	"time"
+
+	"github.com/dgrijalva/jwt-go"
 )
 
 // Create the JWT key used to create the signature
 var jwtKey = []byte("my_secret_key")
 
-// Create a struct that will be encoded to a JWT.
+// Claims Create a struct that will be encoded to a JWT.
 // We add jwt.StandardClaims as an embedded type, to provide fields like expiry time
 type Claims struct {
-	Email string `json:"username"`
+	UserID string `json:"id"`
+	Email  string `json:"username"`
 	jwt.StandardClaims
 }
 
 // NewClaims constructs a Claims value for the identified user. The Claims
 // expire within a specified duration of the provided time. Additional fields
 // of the Claims can be set after calling NewClaims is desired.
-func NewClaims(email string, now time.Time, expires time.Duration) Claims {
+func NewClaims(id, email string, now time.Time, expires time.Duration) Claims {
 	c := Claims{
-		Email: email,
+		UserID: id,
+		Email:  email,
 		StandardClaims: jwt.StandardClaims{
 			Subject:  "wishList",
 			IssuedAt: now.Unix(),
