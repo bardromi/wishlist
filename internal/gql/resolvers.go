@@ -15,18 +15,23 @@ type Resolver struct {
 	db *sqlx.DB
 }
 
+var (
+	// ErrValidationFailed abstracts the postgres not found error.
+	ErrValidationFailed = errors.New("one or more of parameters are invalid")
+)
+
 // UserGetUserByID graphql connector to get user by id
 func (r *Resolver) userGetUserByID(p graphql.ResolveParams) (interface{}, error) {
 	// Strip the name from arguments and assert that it's a string
 	id, ok := p.Args["id"].(string)
 	if ok {
-		users, err := user.GetUserByID(r.db, id)
+		user, err := user.GetUserByID(r.db, id)
 		if err != nil {
 			return nil, err
 		}
-		return users, nil
+		return user, nil
 	}
-	return nil, nil
+	return nil, ErrValidationFailed
 }
 
 // UserList graphql connector to get all users
@@ -41,19 +46,28 @@ func (r *Resolver) userList(p graphql.ResolveParams) (interface{}, error) {
 
 // SignUp graphql connector to create user
 func (r *Resolver) signUp(p graphql.ResolveParams) (interface{}, error) {
-	nu := user.NewUser{
-		Name:            p.Args["name"].(string),
-		Email:           p.Args["email"].(string),
-		Password:        p.Args["password"].(string),
-		PasswordConfirm: p.Args["passwordConfirm"].(string),
+	name, okName := p.Args["name"].(string)
+	email, okEmail := p.Args["email"].(string)
+	password, okPassword := p.Args["password"].(string)
+	passwordConfirm, okPasswordConfirm := p.Args["passwordConfirm"].(string)
+
+	if okName && okEmail && okPassword && okPasswordConfirm {
+		nu := user.NewUser{
+			Name:            name,
+			Email:           email,
+			Password:        password,
+			PasswordConfirm: passwordConfirm,
+		}
+
+		usr, err := user.Create(r.db, &nu)
+		if err != nil {
+			return nil, err
+		}
+
+		return usr, nil
 	}
 
-	usr, err := user.Create(r.db, &nu)
-	if err != nil {
-		return nil, err
-	}
-
-	return usr, nil
+	return nil, ErrValidationFailed
 }
 
 // SignIn graphql connector to authenticate <<not implemented yet>>
@@ -69,6 +83,7 @@ func (r *Resolver) wishCreateWish(p graphql.ResolveParams) (interface{}, error) 
 		return nil, errors.New("Cannot add wish without owner")
 	}
 
+	// Todo: type assertion
 	nw := wish.NewWish{
 		OwnerID: claim.UserID,
 		Title:   p.Args["title"].(string),
@@ -81,4 +96,24 @@ func (r *Resolver) wishCreateWish(p graphql.ResolveParams) (interface{}, error) 
 	}
 
 	return wish, nil
+}
+
+func (r *Resolver) userDeleteUser(p graphql.ResolveParams) (interface{}, error) {
+	// Strip the name from arguments and assert that it's a string
+	id, ok := p.Args["id"].(string)
+	if ok {
+		err := user.Delete(r.db, id)
+		if err != nil {
+			return nil, err
+		}
+
+		// if user deleted successfully return user
+		user, err := user.GetUserByID(r.db, id)
+		if err != nil {
+			return nil, err
+		}
+		return user, nil
+	}
+
+	return nil, ErrValidationFailed
 }
