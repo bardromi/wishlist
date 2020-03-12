@@ -25,7 +25,7 @@ func (r *Resolver) userGetUserByID(p graphql.ResolveParams) (interface{}, error)
 	// Strip the name from arguments and assert that it's a string
 	id, ok := p.Args["id"].(string)
 	if ok {
-		user, err := user.GetUserByID(r.db, id)
+		user, err := user.Retrieve(r.db, id)
 		if err != nil {
 			return nil, err
 		}
@@ -103,7 +103,7 @@ func (r *Resolver) userDeleteUser(p graphql.ResolveParams) (interface{}, error) 
 	id, ok := p.Args["id"].(string)
 	if ok {
 
-		userFromDB, err := user.GetUserByID(r.db, id)
+		userFromDB, err := user.Retrieve(r.db, id)
 		if err != nil {
 			return nil, err
 		}
