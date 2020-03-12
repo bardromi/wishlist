@@ -1,13 +1,15 @@
 drop table wishes;
 drop table users;
 
-create table users
+CREATE TABLE users
 (
-    id         uuid,
-    name       VARCHAR (50)      not null,
-    email      VARCHAR (50) unique,
-    password   VARCHAR (50)      not null,
-    created_at timestamp not null,
+    id         UUID,
+    name       TEXT      not null,
+    email      TEXT     unique,
+    password   TEXT      not null,
+
+    date_created TIMESTAMP NOT NULL,
+    date_updated TIMESTAMP,
 
     PRIMARY KEY (id)
 );
@@ -15,10 +17,12 @@ create table users
 CREATE TABLE wishes
 (
     id SERIAL  ,
-    owner_id uuid,
-    title VARCHAR (50),
-    price numeric,
-    created_at timestamp not null,
+    owner_id UUID,
+    title TEXT,
+    price NUMERIC,
+
+    date_created TIMESTAMP NOT NULL,
+    date_updated TIMESTAMP,
 
     PRIMARY KEY (id),
     FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE
