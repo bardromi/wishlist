@@ -52,7 +52,20 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 						"id": &graphql.ArgumentConfig{
 							Type: graphql.String,
 						},
+						"name": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"email": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"password": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"passwordConfirm": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
 					},
+					Resolve: resolver.userUpdateUser,
 				},
 				"deleteUser": &graphql.Field{
 					Type:        userType(typeResolver),

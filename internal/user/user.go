@@ -64,7 +64,6 @@ func List(db *sqlx.DB) ([]User, error) {
 }
 
 // Create inserts a new user into the database.
-// if want to use with graphql and reserve the package oriented design should get fields of new user and not new user
 func Create(db *sqlx.DB, nu *NewUser) (*User, error) {
 	if nu.Password != nu.PasswordConfirm {
 		return nil, ErrValidateConfirmPassword
@@ -100,10 +99,10 @@ func Create(db *sqlx.DB, nu *NewUser) (*User, error) {
 }
 
 // Update replaces a user document in the database.
-func Update(db *sqlx.DB, id string, upd UpdateUser) error {
+func Update(db *sqlx.DB, id string, upd UpdateUser) (*User, error) {
 	u, err := Retrieve(db, id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if upd.Name != nil {
@@ -117,7 +116,7 @@ func Update(db *sqlx.DB, id string, upd UpdateUser) error {
 		// The second argument is the cost of hashing, which we arbitrarily set as 8 (this value can be more or less, depending on the computing power you wish to utilize)
 		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*upd.Password), 8)
 		if err != nil {
-			return errors.Wrap(err, "generating password hash")
+			return nil, errors.Wrap(err, "generating password hash")
 		}
 		u.PasswordHash = hashedPassword
 	}
@@ -126,18 +125,18 @@ func Update(db *sqlx.DB, id string, upd UpdateUser) error {
 
 	const q = `
 	UPDATE users SET
-	"name" = $2
-	"email" = $3
-	"password = $4
-	"date_updated" = $5
+	name = $2,
+	email = $3,
+	password = $4,
+	date_updated = $5
 	WHERE id = $1`
 
 	_, err = db.Exec(q, id, u.Name, u.Email, u.PasswordHash, u.DateUpdated)
 	if err != nil {
-		return errors.Wrap(err, "updating user")
+		return nil, errors.Wrap(err, "updating user")
 	}
 
-	return nil
+	return u, nil
 }
 
 // Authenticate finds a user by their email and verifies their password. On
