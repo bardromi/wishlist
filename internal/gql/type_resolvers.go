@@ -15,7 +15,7 @@ type TypeResolver struct {
 func (rt *TypeResolver) getUserByID(p graphql.ResolveParams) (interface{}, error) {
 	// Strip the name from arguments and assert that it's a string
 	id := p.Source.(*wish.Wish).OwnerID
-	users, err := user.GetUserByID(rt.db, id)
+	users, err := user.Retrieve(rt.db, id)
 	if err != nil {
 		return nil, err
 	}

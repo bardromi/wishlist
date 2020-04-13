@@ -25,7 +25,7 @@ func (r *Resolver) userGetUserByID(p graphql.ResolveParams) (interface{}, error)
 	// Strip the name from arguments and assert that it's a string
 	id, ok := p.Args["id"].(string)
 	if ok {
-		user, err := user.GetUserByID(r.db, id)
+		user, err := user.Retrieve(r.db, id)
 		if err != nil {
 			return nil, err
 		}
@@ -103,7 +103,7 @@ func (r *Resolver) userDeleteUser(p graphql.ResolveParams) (interface{}, error) 
 	id, ok := p.Args["id"].(string)
 	if ok {
 
-		userFromDB, err := user.GetUserByID(r.db, id)
+		userFromDB, err := user.Retrieve(r.db, id)
 		if err != nil {
 			return nil, err
 		}
@@ -117,4 +117,47 @@ func (r *Resolver) userDeleteUser(p graphql.ResolveParams) (interface{}, error) 
 	}
 
 	return nil, ErrValidationFailed
+}
+
+func (r *Resolver) userUpdateUser(p graphql.ResolveParams) (interface{}, error) {
+	id, okID := p.Args["id"].(string)
+	if !okID {
+		return nil, ErrValidationFailed
+	}
+
+	var pName, pEmail, pPassword, pPasswordConfirm *string
+	// maybe unmarshal into userupdate
+	name, okName := p.Args["name"].(string)
+	if okName {
+		pName = &name
+	}
+
+	email, okEmail := p.Args["email"].(string)
+	if okEmail {
+		pEmail = &email
+	}
+
+	password, okPassword := p.Args["password"].(string)
+	if okPassword {
+		pPassword = &password
+	}
+
+	passwordConfirm, okPassordConfirm := p.Args["passwordConfirm"].(string)
+	if okPassordConfirm {
+		pPasswordConfirm = &passwordConfirm
+	}
+
+	updateUser := user.UpdateUser{
+		Name:            pName,
+		Email:           pEmail,
+		Password:        pPassword,
+		PasswordConfirm: pPasswordConfirm,
+	}
+
+	user, err := user.Update(r.db, id, updateUser)
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }

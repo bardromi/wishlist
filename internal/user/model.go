@@ -8,7 +8,8 @@ type User struct {
 	Name         string    `db:"name" json:"name"`
 	Email        string    `db:"email" json:"email"`
 	PasswordHash []byte    `db:"password" json:"-"`
-	CreatedAt    time.Time `db:"created_at" json:"created_at"`
+	DateCreated  time.Time `db:"date_created" json:"date_created"`
+	DateUpdated  time.Time `db:"date_updated" json:"date_updated"`
 }
 
 // NewUser contains information needed to create a new User.
@@ -16,7 +17,7 @@ type NewUser struct {
 	Name            string `json:"name"`
 	Email           string `json:"email"`
 	Password        string `json:"password"`
-	PasswordConfirm string `json:"password_confirm"`
+	PasswordConfirm string `json:"password_confirm" validate:"eqfield=Password"`
 }
 
 // UpdateUser defines what information may be provided to modify an existing
@@ -26,9 +27,8 @@ type NewUser struct {
 // we do not want to use pointers to basic types but we make exceptions around
 // marshalling/unmarshalling.
 type UpdateUser struct {
-	Name            *string  `json:"name"`
-	Email           *string  `json:"email"`
-	Roles           []string `json:"roles"`
-	Password        *string  `json:"password"`
-	PasswordConfirm *string  `json:"password_confirm" validate:"omitempty,eqfield=Password"`
+	Name            *string `json:"name"`
+	Email           *string `json:"email"`
+	Password        *string `json:"password"`
+	PasswordConfirm *string `json:"password_confirm" validate:"omitempty,eqfield=Password"`
 }

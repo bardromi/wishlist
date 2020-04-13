@@ -28,8 +28,8 @@ var (
 	ErrAuthenticationFailure = errors.New("authentication failed")
 )
 
-// GetUserByID gets the specified user from the database.
-func GetUserByID(db *sqlx.DB, id string) (*User, error) {
+// Retrieve gets the specified user from the database.
+func Retrieve(db *sqlx.DB, id string) (*User, error) {
 	if _, err := uuid.Parse(id); err != nil {
 		return nil, ErrInvalidID
 	}
@@ -64,7 +64,6 @@ func List(db *sqlx.DB) ([]User, error) {
 }
 
 // Create inserts a new user into the database.
-// if want to use with graphql and reserve the package oriented design should get fields of new user and not new user
 func Create(db *sqlx.DB, nu *NewUser) (*User, error) {
 	if nu.Password != nu.PasswordConfirm {
 		return nil, ErrValidateConfirmPassword
@@ -82,20 +81,62 @@ func Create(db *sqlx.DB, nu *NewUser) (*User, error) {
 		Name:         nu.Name,
 		Email:        nu.Email,
 		PasswordHash: hashedPassword,
-		CreatedAt:    time.Now(),
+		DateCreated:  time.Now(),
+		DateUpdated:  time.Now(),
 	}
 
 	const q = `
 	INSERT INTO users 
-	(ID, name, email, password, created_at)
-	VALUES ($1, $2, $3, $4, $5)`
+	(ID, name, email, password, date_created, date_updated)
+	VALUES ($1, $2, $3, $4, $5, $6)`
 
-	_, err = db.Exec(q, u.ID, u.Name, u.Email, u.PasswordHash, u.CreatedAt)
+	_, err = db.Exec(q, u.ID, u.Name, u.Email, u.PasswordHash, u.DateCreated, u.DateUpdated)
 	if err != nil {
 		return nil, errors.Wrap(err, "inserting user")
 	}
 
 	return &u, nil
+}
+
+// Update replaces a user document in the database.
+func Update(db *sqlx.DB, id string, upd UpdateUser) (*User, error) {
+	u, err := Retrieve(db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if upd.Name != nil {
+		u.Name = *upd.Name
+	}
+	if upd.Email != nil {
+		u.Email = *upd.Email
+	}
+	if upd.Password != nil {
+		// Salt and hash the password using the bcrypt algorithm
+		// The second argument is the cost of hashing, which we arbitrarily set as 8 (this value can be more or less, depending on the computing power you wish to utilize)
+		hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*upd.Password), 8)
+		if err != nil {
+			return nil, errors.Wrap(err, "generating password hash")
+		}
+		u.PasswordHash = hashedPassword
+	}
+
+	u.DateUpdated = time.Now()
+
+	const q = `
+	UPDATE users SET
+	name = $2,
+	email = $3,
+	password = $4,
+	date_updated = $5
+	WHERE id = $1`
+
+	_, err = db.Exec(q, id, u.Name, u.Email, u.PasswordHash, u.DateUpdated)
+	if err != nil {
+		return nil, errors.Wrap(err, "updating user")
+	}
+
+	return u, nil
 }
 
 // Authenticate finds a user by their email and verifies their password. On

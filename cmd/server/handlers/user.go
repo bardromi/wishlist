@@ -25,7 +25,7 @@ type Login struct {
 // GetUser returns the specified user from the system.
 func (u *User) GetUser(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	usr, err := user.GetUserByID(u.db, vars["id"])
+	usr, err := user.Retrieve(u.db, vars["id"])
 
 	if err != nil {
 		web.RespondError(w, "User not found", http.StatusOK)

@@ -13,3 +13,5 @@
 
 .idea/
 cmd/server/config.json
+.vscode/settings.json
+cmd/server/__debug_bin
