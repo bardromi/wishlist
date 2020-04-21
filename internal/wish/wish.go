@@ -1,12 +1,45 @@
 package wish
 
 import (
+	"database/sql"
 	"log"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 )
+
+var (
+	// ErrNotFound abstracts the postgres not found error.
+	ErrNotFound = errors.New("entity not found")
+
+	// ErrInvalidID occurs when an ID is not in a valid form.
+	ErrInvalidID = errors.New("ID is not in its proper form")
+)
+
+// Retrieve gets the specified wish from the database.
+func Retrieve(db *sqlx.DB, id string) (*Wish, error) {
+	if _, err := uuid.Parse(id); err != nil {
+		return nil, ErrInvalidID
+	}
+
+	var wish Wish
+
+	const q = `SELECT * 
+	 FROM wishes 
+	 WHERE id=$1`
+
+	if err := db.Get(&wish, q, id); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, ErrNotFound
+		}
+
+		return nil, errors.Wrapf(err, "selecting wish %q", id)
+	}
+
+	return &wish, nil
+}
 
 // Create adds a Wish to the database. It returns the created Wish.
 func Create(db *sqlx.DB, nw *NewWish) (*Wish, error) {
@@ -46,6 +79,18 @@ func Create(db *sqlx.DB, nw *NewWish) (*Wish, error) {
 	wish.ID = wishID
 
 	return &wish, nil
+}
+
+// List retrieves a list of existing wishes from the database.
+func List(db *sqlx.DB) ([]Wish, error) {
+	var wishes []Wish
+	const q = `SELECT * FROM wishes`
+
+	if err := db.Select(&wishes, q); err != nil {
+		return nil, errors.Wrap(err, "selecting wishes")
+	}
+
+	return wishes, nil
 }
 
 // GetWishesByUserID gets all user wishes from the database.
