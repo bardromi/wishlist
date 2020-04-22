@@ -10,7 +10,6 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 				//////////////////////////////////////////////////////////////////
 				///////////////////////        USER        ///////////////////////
 				//////////////////////////////////////////////////////////////////
-				// Post create a user
 				"SignUp": &graphql.Field{
 					Type:        userType(typeResolver),
 					Description: "Sign up new user",
@@ -30,7 +29,6 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 					},
 					Resolve: resolver.signUp,
 				},
-				// Post Login a user (Not Implemetnted)
 				"SignIn": &graphql.Field{
 					Type:        userType(typeResolver),
 					Description: "Sign in user",
@@ -44,7 +42,6 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 					},
 					Resolve: resolver.signIn,
 				},
-				// Todo: Implement
 				"updateUser": &graphql.Field{
 					Type:        userType(typeResolver),
 					Description: "Update user by id",
