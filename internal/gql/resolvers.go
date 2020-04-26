@@ -140,13 +140,13 @@ func (r *Resolver) userUpdateUser(p graphql.ResolveParams) (interface{}, error) 
 }
 
 func (r *Resolver) wishGetWishByID(p graphql.ResolveParams) (interface{}, error) {
-	id, ok := p.Args["id"].(string)
+	id, ok := p.Args["id"].(int)
 
 	if !ok {
 		return nil, ErrValidationFailed
 	}
 
-	wish, err := wish.GetWishesByUserID(r.db, id)
+	wish, err := wish.Retrieve(r.db, id)
 	if err != nil {
 		return nil, err
 	}

@@ -5,7 +5,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	"github.com/pkg/errors"
 )
@@ -19,11 +18,7 @@ var (
 )
 
 // Retrieve gets the specified wish from the database.
-func Retrieve(db *sqlx.DB, id string) (*Wish, error) {
-	if _, err := uuid.Parse(id); err != nil {
-		return nil, ErrInvalidID
-	}
-
+func Retrieve(db *sqlx.DB, id int) (*Wish, error) {
 	var wish Wish
 
 	const q = `SELECT * 
@@ -82,7 +77,7 @@ func Create(db *sqlx.DB, nw *NewWish) (*Wish, error) {
 }
 
 // List retrieves a list of existing wishes from the database.
-func List(db *sqlx.DB) ([]Wish, error) {
+func List(db *sqlx.DB) ([]*Wish, error) {
 	var wishes []Wish
 	const q = `SELECT * FROM wishes`
 
@@ -90,7 +85,14 @@ func List(db *sqlx.DB) ([]Wish, error) {
 		return nil, errors.Wrap(err, "selecting wishes")
 	}
 
-	return wishes, nil
+	wishesPointer := []*Wish{}
+
+	for _, wish := range wishes {
+		nwish := wish
+		wishesPointer = append(wishesPointer, &nwish)
+	}
+
+	return wishesPointer, nil
 }
 
 // GetWishesByUserID gets all user wishes from the database.
@@ -109,7 +111,8 @@ func GetWishesByUserID(db *sqlx.DB, id string) ([]*Wish, error) {
 	wishesPointer := []*Wish{}
 
 	for _, wish := range wishes {
-		wishesPointer = append(wishesPointer, &wish)
+		nwish := wish
+		wishesPointer = append(wishesPointer, &nwish)
 	}
 
 	return wishesPointer, nil

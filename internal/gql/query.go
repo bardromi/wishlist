@@ -27,7 +27,7 @@ func buildQuery(resolver Resolver, typeResolver TypeResolver) *graphql.Object {
 					Description: "Get wish by id",
 					Args: graphql.FieldConfigArgument{
 						"id": &graphql.ArgumentConfig{
-							Type: graphql.String,
+							Type: graphql.Int,
 						},
 					},
 					Resolve: resolver.wishGetWishByID,
