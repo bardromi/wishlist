@@ -154,6 +154,21 @@ func (r *Resolver) wishGetWishByID(p graphql.ResolveParams) (interface{}, error)
 	return wish, nil
 }
 
+func (r *Resolver) wishGetWishByUserID(p graphql.ResolveParams) (interface{}, error) {
+	id, ok := p.Args["id"].(string)
+
+	if !ok {
+		return nil, ErrValidationFailed
+	}
+
+	wish, err := wish.GetWishesByUserID(r.db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return wish, nil
+}
+
 func (r *Resolver) wishList(p graphql.ResolveParams) (interface{}, error) {
 	wishes, err := wish.List(r.db)
 

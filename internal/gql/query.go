@@ -32,6 +32,16 @@ func buildQuery(resolver Resolver, typeResolver TypeResolver) *graphql.Object {
 					},
 					Resolve: resolver.wishGetWishByID,
 				},
+				"userWishes": &graphql.Field{
+					Type:        wishType(typeResolver),
+					Description: "Get wish by user id",
+					Args: graphql.FieldConfigArgument{
+						"id": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+					},
+					Resolve: resolver.wishGetWishByID,
+				},
 				"wishes": &graphql.Field{
 					Type:        graphql.NewList(wishType(typeResolver)),
 					Description: "Get list of wishes",
