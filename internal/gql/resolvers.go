@@ -75,29 +75,6 @@ func (r *Resolver) signIn(p graphql.ResolveParams) (interface{}, error) {
 	return nil, errors.New("not Implemented")
 }
 
-func (r *Resolver) wishCreateWish(p graphql.ResolveParams) (interface{}, error) {
-
-	claim := p.Context.Value("token").(auth.Claims)
-
-	if claim.UserID == "" {
-		return nil, errors.New("Cannot add wish without owner")
-	}
-
-	// Todo: type assertion
-	nw := wish.NewWish{
-		OwnerID: claim.UserID,
-		Title:   p.Args["title"].(string),
-		Price:   p.Args["price"].(float64),
-	}
-
-	wish, err := wish.Create(r.db, &nw)
-	if err != nil {
-		return nil, err
-	}
-
-	return wish, nil
-}
-
 func (r *Resolver) userDeleteUser(p graphql.ResolveParams) (interface{}, error) {
 	// Strip the name from arguments and assert that it's a string
 	id, ok := p.Args["id"].(string)
@@ -160,4 +137,67 @@ func (r *Resolver) userUpdateUser(p graphql.ResolveParams) (interface{}, error) 
 	}
 
 	return user, nil
+}
+
+func (r *Resolver) wishGetWishByID(p graphql.ResolveParams) (interface{}, error) {
+	id, ok := p.Args["id"].(int)
+
+	if !ok {
+		return nil, ErrValidationFailed
+	}
+
+	wish, err := wish.Retrieve(r.db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return wish, nil
+}
+
+func (r *Resolver) wishGetWishByUserID(p graphql.ResolveParams) (interface{}, error) {
+	id, ok := p.Args["id"].(string)
+
+	if !ok {
+		return nil, ErrValidationFailed
+	}
+
+	wish, err := wish.GetWishesByUserID(r.db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	return wish, nil
+}
+
+func (r *Resolver) wishList(p graphql.ResolveParams) (interface{}, error) {
+	wishes, err := wish.List(r.db)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return wishes, nil
+}
+
+func (r *Resolver) wishCreateWish(p graphql.ResolveParams) (interface{}, error) {
+
+	claim := p.Context.Value("token").(auth.Claims)
+
+	if claim.UserID == "" {
+		return nil, errors.New("Cannot add wish without owner")
+	}
+
+	// Todo: type assertion
+	nw := wish.NewWish{
+		OwnerID: claim.UserID,
+		Title:   p.Args["title"].(string),
+		Price:   p.Args["price"].(float64),
+	}
+
+	wish, err := wish.Create(r.db, &nw)
+	if err != nil {
+		return nil, err
+	}
+
+	return wish, nil
 }

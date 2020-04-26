@@ -38,7 +38,7 @@ func wishType(typeResolver TypeResolver) *graphql.Object {
 			Fields: graphql.FieldsThunk(func() graphql.Fields {
 				return graphql.Fields{
 					"id": &graphql.Field{
-						Type: graphql.String,
+						Type: graphql.Int,
 					},
 					"owner": &graphql.Field{
 						Type:    userType(typeResolver),
