@@ -201,3 +201,21 @@ func (r *Resolver) wishCreateWish(p graphql.ResolveParams) (interface{}, error) 
 
 	return wish, nil
 }
+
+func (r *Resolver) wishDeleteWish(p graphql.ResolveParams) (interface{}, error) {
+	id, ok := p.Args["id"].(int)
+	if !ok {
+		return nil, ErrValidationFailed
+	}
+
+	wishFromDB, err := wish.Retrieve(r.db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := wish.Delete(r.db, id); err != nil {
+		return nil, err
+	}
+
+	return wishFromDB, nil
+}

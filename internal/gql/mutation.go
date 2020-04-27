@@ -94,6 +94,16 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 					},
 					Resolve: resolver.wishCreateWish,
 				},
+				"deleteWish": &graphql.Field{
+					Type:        wishType(typeResolver),
+					Description: "Delete wish by id",
+					Args: graphql.FieldConfigArgument{
+						"id": &graphql.ArgumentConfig{
+							Type: graphql.Int,
+						},
+					},
+					Resolve: resolver.wishDeleteWish,
+				},
 			},
 		},
 	)

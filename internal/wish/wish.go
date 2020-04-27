@@ -117,3 +117,14 @@ func GetWishesByUserID(db *sqlx.DB, id string) ([]*Wish, error) {
 
 	return wishesPointer, nil
 }
+
+// Delete removes a wish from the database.
+func Delete(db *sqlx.DB, id int) error {
+	const q = `DELETE FROM wishes where id=$1`
+
+	if _, err := db.Exec(q, id); err != nil {
+		return errors.Wrapf(err, "deleting user %d", id)
+	}
+
+	return nil
+}
