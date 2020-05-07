@@ -128,3 +128,35 @@ func Delete(db *sqlx.DB, id int) error {
 
 	return nil
 }
+
+// Update replaces a wish document in the database.
+func Update(db *sqlx.DB, id int, upd UpdateWish) (*Wish, error) {
+	wish, err := Retrieve(db, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if upd.Title != nil {
+		wish.Title = *upd.Title
+	}
+
+	if upd.Price != nil {
+		wish.Price = *upd.Price
+	}
+
+	wish.DateUpdated = time.Now()
+
+	const q = `
+	UPDATE wishes
+	SET
+	title = $2,
+	price = $3
+	WHERE id = $1`
+
+	_, err = db.Exec(q, id, wish.Title, wish.Price)
+	if err != nil {
+		return nil, errors.Wrap(err, "updating wish")
+	}
+
+	return wish, nil
+}

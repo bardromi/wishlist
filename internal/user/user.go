@@ -124,7 +124,8 @@ func Update(db *sqlx.DB, id string, upd UpdateUser) (*User, error) {
 	u.DateUpdated = time.Now()
 
 	const q = `
-	UPDATE users SET
+	UPDATE users 
+	SET
 	name = $2,
 	email = $3,
 	password = $4,

@@ -80,7 +80,7 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 				//////////////////////////////////////////////////////////////////
 				"createWish": &graphql.Field{
 					Type:        wishType(typeResolver),
-					Description: "create new wish",
+					Description: "Create new wish",
 					Args: graphql.FieldConfigArgument{
 						"owner": &graphql.ArgumentConfig{
 							Type: graphql.String,
@@ -103,6 +103,22 @@ func buildMutation(resolver Resolver, typeResolver TypeResolver) *graphql.Object
 						},
 					},
 					Resolve: resolver.wishDeleteWish,
+				},
+				"updateWish": &graphql.Field{
+					Type:        wishType(typeResolver),
+					Description: "Update wish by id",
+					Args: graphql.FieldConfigArgument{
+						"id": &graphql.ArgumentConfig{
+							Type: graphql.Int,
+						},
+						"title": &graphql.ArgumentConfig{
+							Type: graphql.String,
+						},
+						"price": &graphql.ArgumentConfig{
+							Type: graphql.Float,
+						},
+					},
+					Resolve: resolver.wishUpdateWish,
 				},
 			},
 		},
