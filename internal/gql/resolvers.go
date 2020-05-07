@@ -219,3 +219,35 @@ func (r *Resolver) wishDeleteWish(p graphql.ResolveParams) (interface{}, error) 
 
 	return wishFromDB, nil
 }
+
+func (r *Resolver) wishUpdateWish(p graphql.ResolveParams) (interface{}, error) {
+	id, okID := p.Args["id"].(int)
+	if !okID {
+		return nil, ErrValidationFailed
+	}
+
+	var pTitle *string
+	var pPrice *float64
+	// maybe unmarshal into userupdate
+	title, okTitle := p.Args["title"].(string)
+	if okTitle {
+		pTitle = &title
+	}
+
+	price, okPrice := p.Args["price"].(float64)
+	if okPrice {
+		pPrice = &price
+	}
+
+	updateWish := wish.UpdateWish{
+		Title: pTitle,
+		Price: pPrice,
+	}
+
+	wish, err := wish.Update(r.db, id, updateWish)
+	if err != nil {
+		return nil, err
+	}
+
+	return wish, nil
+}
