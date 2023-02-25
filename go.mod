@@ -11,5 +11,6 @@ require (
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/lib/pq v1.2.0
 	github.com/pkg/errors v0.9.1
-	golang.org/x/crypto v0.0.0-20190927123631-a832865fa7ad
+	golang.org/x/crypto v0.1.0
+	google.golang.org/appengine v1.6.7 // indirect
 )
